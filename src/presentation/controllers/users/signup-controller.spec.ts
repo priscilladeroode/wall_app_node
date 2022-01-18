@@ -1,7 +1,7 @@
 import { SignUpController } from './signup-controller'
 
 describe('Add Post Controller', () => {
-  test('Shoud return 400 if no title is provided', async () => {
+  test('Shoud return 400 if no name is provided', async () => {
     const sut = new SignUpController()
     const httpRequest = {
       body: {
@@ -12,5 +12,6 @@ describe('Add Post Controller', () => {
     }
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new Error('Missing param: name'))
   })
 })
