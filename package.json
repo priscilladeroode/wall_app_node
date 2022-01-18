@@ -4,7 +4,8 @@
   "description": "Wall App is an application that allows users to register, login, and write on a wall.",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests --silent --runInBand",
+    "test:staged": "npm test --findRelatedTest",
     "prepare": "husky install"
   },
   "author": "Priscilla de Roode",
