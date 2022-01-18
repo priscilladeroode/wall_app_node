@@ -1,0 +1,11 @@
+{
+  "name": "wall-app-backend",
+  "version": "1.0.0",
+  "description": "Wall App is an application that allows users to register, login, and write on a wall.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Priscilla de Roode",
+  "license": "ISC"
+}
