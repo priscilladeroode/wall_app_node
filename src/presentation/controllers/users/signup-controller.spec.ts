@@ -32,7 +32,7 @@ describe('Add Post Controller', () => {
       body: {
         email: 'any_email',
         password: 'any_password',
-        passwordConfirmation: 'any_confirmation'
+        passwordConfirmation: 'any_password'
       }
     }
     const httpResponse = sut.handle(httpRequest)
@@ -46,7 +46,7 @@ describe('Add Post Controller', () => {
       body: {
         name: 'any_name',
         password: 'any_password',
-        passwordConfirmation: 'any_confirmation'
+        passwordConfirmation: 'any_password'
       }
     }
     const httpResponse = sut.handle(httpRequest)
@@ -60,7 +60,7 @@ describe('Add Post Controller', () => {
       body: {
         name: 'any_name',
         email: 'any_email',
-        passwordConfirmation: 'any_confirmation'
+        passwordConfirmation: 'any_password'
       }
     }
     const httpResponse = sut.handle(httpRequest)
@@ -92,12 +92,30 @@ describe('Add Post Controller', () => {
         name: 'any_name',
         email: 'any_email',
         password: 'any_password',
-        passwordConfirmation: 'any_confirmation'
+        passwordConfirmation: 'any_password'
       }
     }
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('email'))
+  })
+
+  test('Shoud return 400 passwordConfirmation fails', async () => {
+    const { sut, emailValidatorStub } = makeSut()
+    jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email',
+        password: 'any_password',
+        passwordConfirmation: 'invalid_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(
+      new InvalidParamError('passwordConfirmation')
+    )
   })
 
   test('Shoud call EmailValidator with correct email', async () => {
@@ -108,7 +126,7 @@ describe('Add Post Controller', () => {
         name: 'any_name',
         email: 'any_email',
         password: 'any_password',
-        passwordConfirmation: 'any_confirmation'
+        passwordConfirmation: 'any_password'
       }
     }
     sut.handle(httpRequest)
@@ -125,7 +143,7 @@ describe('Add Post Controller', () => {
         name: 'any_name',
         email: 'any_email',
         password: 'any_password',
-        passwordConfirmation: 'any_confirmation'
+        passwordConfirmation: 'any_password'
       }
     }
     const httpResponse = sut.handle(httpRequest)
