@@ -4,5 +4,5 @@ import {
 } from '../../entities/users'
 
 export interface AddAccount {
-  add: (account: AddAccountRequestEntity) => AddAccountResponseEntity
+  add: (account: AddAccountRequestEntity) => Promise<AddAccountResponseEntity>
 }
