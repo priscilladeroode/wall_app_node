@@ -88,4 +88,14 @@ describe('DBAddAccount Usecase', () => {
       password: 'hashed_password'
     })
   })
+
+  test('Should throw if encrypter throws', async () => {
+    const { sut, addAccountRepositoryStub } = makeSut()
+    jest
+      .spyOn(addAccountRepositoryStub, 'add')
+      .mockReturnValueOnce(Promise.reject(new Error()))
+    const accountData = mockAddAccountRequestEntity()
+    const promise = sut.add(accountData)
+    await expect(promise).rejects.toThrow()
+  })
 })
