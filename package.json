@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --passWithNoTests --silent --runInBand",
+    "test:verbose": "jest --passWithNoTests",
+    "test:unit": "npm test -- --watch -c jest-unit-config.js",
+    "test:integration": "npm test -- --watch -c jest-integration-config.js",
     "test:staged": "npm test --findRelatedTest",
+    "test:ci": "npm test -- --coverage",
     "prepare": "husky install"
   },
   "author": "Priscilla de Roode",
