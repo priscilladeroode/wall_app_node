@@ -3,8 +3,8 @@ import {
   AddAccountResponseEntity
 } from '../../../domain/entities/users'
 import { AddAccount } from '../../../domain/usecases/users'
+import { EmailValidator } from '../../../validations/protocols/email-validator'
 import { InvalidParamError, MissingParamError, ServerError } from '../../errors'
-import { EmailValidator } from '../../protocols'
 import { SignUpController } from './signup-controller'
 
 interface SutTypes {
