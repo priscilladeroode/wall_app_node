@@ -22,18 +22,16 @@ const makeEmailValidator = (): EmailValidator => {
   return new EmailValidatorStub()
 }
 
+const fakeMessage = {
+  message: 'User successfully registered'
+}
+
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
     async add (
       account: AddAccountRequestEntity
     ): Promise<AddAccountResponseEntity> {
-      const fakeAccount = {
-        id: 'any_id',
-        name: 'any_name',
-        email: 'any_email',
-        password: 'any_password'
-      }
-      return await Promise.resolve(fakeAccount)
+      return await Promise.resolve(fakeMessage)
     }
   }
   return new AddAccountStub()
@@ -225,11 +223,6 @@ describe('Add Post Controller', () => {
     }
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(200)
-    expect(httpResponse.body).toEqual({
-      id: 'any_id',
-      name: 'any_name',
-      email: 'any_email',
-      password: 'any_password'
-    })
+    expect(httpResponse.body).toEqual(fakeMessage)
   })
 })

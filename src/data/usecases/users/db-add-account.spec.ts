@@ -22,20 +22,16 @@ const makeEncrypter = (): Encrypter => {
   }
   return new EncrypterStub()
 }
+const fakeMessage = {
+  message: 'User successfully registered'
+}
 
 const makeAddAccountRepository = (): AddAccountRepository => {
   class AddAccountRepositoryStub implements AddAccountRepository {
     async add (
       accountData: AddAccountRequestModel
     ): Promise<AddAccountResponseModel> {
-      const account = mockAddAccountRequestEntity()
-      const fakeAccount = {
-        id: 'valid_id',
-        name: account.name,
-        email: account.email,
-        password: 'hashed_password'
-      }
-      return await Promise.resolve(fakeAccount)
+      return await Promise.resolve(fakeMessage)
     }
   }
   return new AddAccountRepositoryStub()
@@ -102,12 +98,7 @@ describe('DBAddAccount Usecase', () => {
   test('Should return an account on success', async () => {
     const { sut } = makeSut()
     const accountData = mockAddAccountRequestEntity()
-    const account = await sut.add(accountData)
-    expect(account).toEqual({
-      id: 'valid_id',
-      name: account.name,
-      email: account.email,
-      password: 'hashed_password'
-    })
+    const result = await sut.add(accountData)
+    expect(result).toEqual(fakeMessage)
   })
 })
