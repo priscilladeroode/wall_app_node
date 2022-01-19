@@ -1,5 +1,7 @@
 import { Encrypter } from '../../protocols/cryptography/encrypter'
 import { DBAddAccount } from './db-add-account'
+import faker from 'faker'
+import { AddAccountRequestEntity } from '../../../domain/entities/users'
 
 interface SutTypes {
   sut: DBAddAccount
@@ -24,17 +26,19 @@ const makeSut = (): SutTypes => {
   }
 }
 
+export const mockAddAccountRequestEntity = (): AddAccountRequestEntity => ({
+  name: faker.name.findName(),
+  email: faker.internet.email(),
+  password: faker.internet.password()
+})
+
 describe('DBAddAccount Usecase', () => {
   test('Should call encrypter with correct password', async () => {
     const { sut, encrypterStub } = makeSut()
     const encryptSpy = jest.spyOn(encrypterStub, 'encrypt')
-    const accountData = {
-      name: 'valid_name',
-      email: 'valid_email',
-      password: 'valid_password'
-    }
+    const accountData = mockAddAccountRequestEntity()
     await sut.add(accountData)
-    expect(encryptSpy).toHaveBeenCalledWith('valid_password')
+    expect(encryptSpy).toHaveBeenCalledWith(accountData.password)
   })
 
   test('Should throw if encrypter throws', async () => {
@@ -42,11 +46,7 @@ describe('DBAddAccount Usecase', () => {
     jest
       .spyOn(encrypterStub, 'encrypt')
       .mockReturnValueOnce(Promise.reject(new Error()))
-    const accountData = {
-      name: 'valid_name',
-      email: 'valid_email',
-      password: 'valid_password'
-    }
+    const accountData = mockAddAccountRequestEntity()
     const promise = sut.add(accountData)
     await expect(promise).rejects.toThrow()
   })
