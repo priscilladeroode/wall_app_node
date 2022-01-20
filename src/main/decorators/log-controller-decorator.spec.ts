@@ -12,19 +12,23 @@ interface SutTypes {
   controllerStub: Controller
 }
 
+const fakeHttpResponse = {
+  statusCode: 400,
+  body: {
+    name: faker.name.findName()
+  }
+}
+
+const fakeHttpRequest = {
+  body: {
+    name: faker.name.findName()
+  }
+}
+
 const makeController = (): Controller => {
   class ControllerStub implements Controller {
     async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
-      const password = faker.internet.password()
-      const httpResponse: HttpResponse = {
-        statusCode: 400,
-        body: {
-          name: faker.name.findName(),
-          email: faker.internet.email(),
-          password: password,
-          passwordConfirmation: password
-        }
-      }
+      const httpResponse: HttpResponse = fakeHttpResponse
       return await Promise.resolve(httpResponse)
     }
   }
@@ -44,16 +48,15 @@ describe('LogControllerDecorator', () => {
   test('Should call controller handle', async () => {
     const { sut, controllerStub } = makeSut()
     const handleSpy = jest.spyOn(controllerStub, 'handle')
-    const password = faker.internet.password()
-    const httpRequest = {
-      body: {
-        name: faker.name.findName(),
-        email: faker.internet.email(),
-        password: password,
-        passwordConfirmation: password
-      }
-    }
+    const httpRequest = fakeHttpRequest
     await sut.handle(httpRequest)
     expect(handleSpy).toHaveBeenCalledWith(httpRequest)
+  })
+
+  test('Should return the same result of the controller', async () => {
+    const { sut } = makeSut()
+    const httpRequest = fakeHttpRequest
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse).toEqual(fakeHttpResponse)
   })
 })
