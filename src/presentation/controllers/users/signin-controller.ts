@@ -29,15 +29,15 @@ export class SignInController implements Controller {
       if (!isValid) {
         return badRequest(new InvalidParamError('email'))
       }
-      const jwt = await this.authenticationUseCase.auth({
+      const accessToken = await this.authenticationUseCase.auth({
         email,
         password
       })
 
-      if (!jwt) {
+      if (!accessToken) {
         return unauthorized()
       }
-      return ok(jwt)
+      return ok(accessToken)
     } catch (error) {
       return serverError(error)
     }
