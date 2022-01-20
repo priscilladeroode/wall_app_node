@@ -3,17 +3,15 @@ import { BcryptAdapter } from '../../../infra/cryptography/bcrypt-adapter'
 import { UserMongoRepository } from '../../../infra/db/mongodb/user-mongo-repository'
 import { SignUpController } from '../../../presentation/controllers/users/signup-controller'
 import { Controller } from '../../../presentation/protocols'
-import { EmailValidatorAdapter } from '../../../validations/validators/email-validator'
 import { makeLogControllerDecorator } from '../decorators/log-controller-decorator-factory'
 import { makeSignUpValidation } from '../validations/signup-validation-factory'
 
 export const makeSignUpController = (): Controller => {
   const salt = 12
-  const adapter = new EmailValidatorAdapter()
   const encrypter = new BcryptAdapter(salt)
   const repository = new UserMongoRepository()
   const usecase = new DBAddAccount(encrypter, repository)
   const validation = makeSignUpValidation()
-  const controller = new SignUpController(adapter, usecase, validation)
+  const controller = new SignUpController(usecase, validation)
   return makeLogControllerDecorator(controller)
 }
