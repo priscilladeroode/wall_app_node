@@ -1,6 +1,6 @@
 import { EmailValidator } from '../../../validations/protocols/email-validator'
 import { InvalidParamError, MissingParamError, ServerError } from '../../errors'
-import { badRequest, serverError, unauthorized } from '../../helpers/http'
+import { badRequest, ok, serverError, unauthorized } from '../../helpers/http'
 import { SignInController } from './signin-controller'
 
 import faker from 'faker'
@@ -23,8 +23,8 @@ const fakeRequest = {
   }
 }
 
-const fakeMessage = {
-  jwt: 'any_jwt'
+const fakeAccessToken = {
+  accessToken: 'any_accessToken'
 }
 
 const makeEmailValidator = (): EmailValidator => {
@@ -41,7 +41,7 @@ const makeAuthentication = (): AuthenticationUseCase => {
     async auth (
       authRequestEntity: AuthenticationRequestEntity
     ): Promise<AuthenticationResponseEntity> {
-      return await Promise.resolve(fakeMessage)
+      return await Promise.resolve(fakeAccessToken)
     }
   }
   return new AuthenticationUseCaseStub()
@@ -138,5 +138,12 @@ describe('Sign In Controller', () => {
     const httpRequest = fakeRequest
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse).toEqual(unauthorized())
+  })
+
+  test('Shoud return 200 if valid credentials are provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = fakeRequest
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse).toEqual(ok(fakeAccessToken))
   })
 })
