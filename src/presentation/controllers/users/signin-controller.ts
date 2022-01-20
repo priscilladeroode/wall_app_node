@@ -1,22 +1,19 @@
 import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
-import { EmailValidator } from '../../../validations/protocols/email-validator'
-import { InvalidParamError, MissingParamError } from '../../errors'
 import { badRequest, ok, serverError, unauthorized } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
+import { Validation } from '../../protocols/validation'
 
 export class SignInController implements Controller {
   constructor (
-    private readonly emailValidator: EmailValidator,
+    private readonly validation: Validation,
     private readonly authenticationUseCase: AuthenticationUseCase
   ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const requiredFields = ['email', 'password']
-      for (const field of requiredFields) {
-        if (!httpRequest.body[field]) {
-          return badRequest(new MissingParamError(field))
-        }
+      const error = this.validation.validate(httpRequest.body)
+      if (error) {
+        return badRequest(error)
       }
 
       const data = Object.assign({}, httpRequest.body, {
@@ -25,10 +22,6 @@ export class SignInController implements Controller {
 
       const { password, email } = data
 
-      const isValid = this.emailValidator.isValid(email)
-      if (!isValid) {
-        return badRequest(new InvalidParamError('email'))
-      }
       const accessToken = await this.authenticationUseCase.auth({
         email,
         password
