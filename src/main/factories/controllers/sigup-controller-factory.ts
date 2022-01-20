@@ -4,7 +4,7 @@ import { UserMongoRepository } from '../../../infra/db/mongodb/user-mongo-reposi
 import { SignUpController } from '../../../presentation/controllers/users/signup-controller'
 import { Controller } from '../../../presentation/protocols'
 import { EmailValidatorAdapter } from '../../../validations/validators/email-validator'
-import { LogControllerDecorator } from '../../decorators/log-controller-decorator'
+import { makeLogControllerDecorator } from '../decorators/log-controller-decorator-factory'
 
 export const makeSignUpController = (): Controller => {
   const salt = 12
@@ -13,5 +13,5 @@ export const makeSignUpController = (): Controller => {
   const repository = new UserMongoRepository()
   const usecase = new DBAddAccount(encrypter, repository)
   const controller = new SignUpController(adapter, usecase)
-  return new LogControllerDecorator(controller)
+  return makeLogControllerDecorator(controller)
 }
