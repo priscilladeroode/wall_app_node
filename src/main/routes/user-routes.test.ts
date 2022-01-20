@@ -1,10 +1,24 @@
 import request from 'supertest'
 import app from '../../../src/main/config/app'
+import { MongoHelper } from '../../infra/helpers/mongo-helper'
 
 describe('SignUp Routes', () => {
+  beforeAll(async () => {
+    await MongoHelper.connect(process.env.MONGO_URL)
+  })
+
+  afterAll(async () => {
+    await MongoHelper.disconnect()
+  })
+
+  beforeEach(async () => {
+    const collection = MongoHelper.getCollection('users')
+    await collection.deleteMany({})
+  })
+
   test('Should return a message on success', async () => {
     await request(app)
-      .post('/api/register')
+      .post('/api/signup')
       .send({
         name: 'any_name',
         email: 'any_email',
