@@ -1,6 +1,6 @@
 import { EmailValidator } from '../../../validations/protocols/email-validator'
 import { InvalidParamError, MissingParamError, ServerError } from '../../errors'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, serverError, unauthorized } from '../../helpers/http'
 import { SignInController } from './signin-controller'
 
 import faker from 'faker'
@@ -128,5 +128,15 @@ describe('Sign In Controller', () => {
     const httpRequest = fakeRequest
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse).toEqual(serverError(new ServerError(null)))
+  })
+
+  test('Shoud return 401 if invalid credentials are provided', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest
+      .spyOn(authenticationStub, 'auth')
+      .mockReturnValueOnce(Promise.resolve(null))
+    const httpRequest = fakeRequest
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse).toEqual(unauthorized())
   })
 })
