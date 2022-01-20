@@ -1,7 +1,7 @@
 import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
 import { EmailValidator } from '../../../validations/protocols/email-validator'
 import { InvalidParamError, MissingParamError } from '../../errors'
-import { badRequest, ok, serverError } from '../../helpers/http'
+import { badRequest, ok, serverError, unauthorized } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 
 export class SignInController implements Controller {
@@ -33,6 +33,10 @@ export class SignInController implements Controller {
         email,
         password
       })
+
+      if (!jwt) {
+        return unauthorized()
+      }
       return ok(jwt)
     } catch (error) {
       return serverError(error)
