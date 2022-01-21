@@ -29,7 +29,7 @@ export class DBAuthentication implements AuthenticationUseCase {
       )
       if (isValid) {
         const token = await this.encrypter.encrypt(account.id)
-        await this.updateAccessTokenRepository.update({
+        await this.updateAccessTokenRepository.updateAccessToken({
           id: account.id,
           accessToken: token
         })
