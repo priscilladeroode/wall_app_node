@@ -26,12 +26,16 @@ implements AddAccountRepository, LoadAccountByEmailRepository {
   ): Promise<LoadAccountResponseModel> {
     const collection = MongoHelper.getCollection('users')
     const account = await collection.findOne({ email: accountData.email })
-    const result: LoadAccountResponseModel = {
-      id: account._id.toHexString(),
-      name: account.name,
-      email: account.email,
-      password: account.password
+    if (account) {
+      const result: LoadAccountResponseModel = {
+        id: account._id.toHexString(),
+        name: account.name,
+        email: account.email,
+        password: account.password
+      }
+      return result
     }
-    return result
+
+    return null
   }
 }
