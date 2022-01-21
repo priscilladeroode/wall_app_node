@@ -7,11 +7,13 @@ import {
   AddAccountResponseModel
 } from '../../models/users'
 import { AddAccountRepository } from '../../protocols/db/users/add-account-repository'
+import { SendWelcomeEmailRepository } from '../../protocols/services/send-welcome-email-repository'
 
 interface SutTypes {
   sut: DBAddAccount
   hasherStub: Hasher
   addAccountRepositoryStub: AddAccountRepository
+  sendEmailWelcomeEmailRepositoryStub: SendWelcomeEmailRepository
 }
 
 const makeHasher = (): Hasher => {
@@ -37,14 +39,29 @@ const makeAddAccountRepository = (): AddAccountRepository => {
   return new AddAccountRepositoryStub()
 }
 
+const makeSendWelcomeEmailRepository = (): SendWelcomeEmailRepository => {
+  class SendWelcomeEmailRepositoryStub implements SendWelcomeEmailRepository {
+    async send (email: string, name: string): Promise<void> {
+      return await Promise.resolve()
+    }
+  }
+  return new SendWelcomeEmailRepositoryStub()
+}
+
 const makeSut = (): SutTypes => {
   const hasherStub = makeHasher()
+  const sendEmailWelcomeEmailRepositoryStub = makeSendWelcomeEmailRepository()
   const addAccountRepositoryStub = makeAddAccountRepository()
-  const sut = new DBAddAccount(hasherStub, addAccountRepositoryStub)
+  const sut = new DBAddAccount(
+    hasherStub,
+    addAccountRepositoryStub,
+    sendEmailWelcomeEmailRepositoryStub
+  )
   return {
     sut,
     hasherStub,
-    addAccountRepositoryStub
+    addAccountRepositoryStub,
+    sendEmailWelcomeEmailRepositoryStub
   }
 }
 
@@ -100,5 +117,13 @@ describe('DBAddAccount Usecase', () => {
     const accountData = mockAddAccountRequestEntity()
     const result = await sut.add(accountData)
     expect(result).toEqual(fakeMessage)
+  })
+
+  test('Should call SendWelcomeEmailRepository with correct values', async () => {
+    const { sut, sendEmailWelcomeEmailRepositoryStub } = makeSut()
+    const addSpy = jest.spyOn(sendEmailWelcomeEmailRepositoryStub, 'send')
+    const accountData = mockAddAccountRequestEntity()
+    await sut.add(accountData)
+    expect(addSpy).toHaveBeenCalledWith(accountData.email, accountData.name)
   })
 })
