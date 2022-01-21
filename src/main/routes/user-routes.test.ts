@@ -7,6 +7,12 @@ import { hash } from 'bcrypt'
 
 let collection: Collection
 
+jest.mock('axios', () => ({
+  async post (): Promise<string> {
+    return await Promise.resolve('')
+  }
+}))
+
 const password = faker.internet.password()
 
 describe('SignUp Routes', () => {
