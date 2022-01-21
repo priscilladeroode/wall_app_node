@@ -126,4 +126,14 @@ describe('DBAddAccount Usecase', () => {
     await sut.add(accountData)
     expect(addSpy).toHaveBeenCalledWith(accountData.email, accountData.name)
   })
+
+  test('Should throw if SendWelcomeEmailRepository throws', async () => {
+    const { sut, sendEmailWelcomeEmailRepositoryStub } = makeSut()
+    jest
+      .spyOn(sendEmailWelcomeEmailRepositoryStub, 'send')
+      .mockReturnValueOnce(Promise.reject(new Error()))
+    const accountData = mockAddAccountRequestEntity()
+    const promise = sut.add(accountData)
+    await expect(promise).rejects.toThrow()
+  })
 })
