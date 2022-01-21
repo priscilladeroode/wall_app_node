@@ -166,13 +166,6 @@ describe('DBAuthentication', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should call Encrypter with correct id', async () => {
-    const { sut } = makeSut()
-    const fakeRequest = makeFakeRequest()
-    const token = await sut.auth(fakeRequest)
-    expect(token).toStrictEqual({ accessToken: 'any_token' })
-  })
-
   test('Should call UpdateAccessTokenRepository with correct values', async () => {
     const { sut, updateAccessTokenRepositoryStub } = makeSut()
     const updateSpy = jest
@@ -193,5 +186,15 @@ describe('DBAuthentication', () => {
       .mockReturnValueOnce(Promise.reject(new Error()))
     const promise = sut.auth(makeFakeRequest())
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should return an AuthenticationResponseEntity on success', async () => {
+    const { sut } = makeSut()
+    const fakeRequest = makeFakeRequest()
+    const result = await sut.auth(fakeRequest)
+    expect(result).toBeTruthy()
+    expect(result.name).toBeTruthy()
+    expect(result.email).toBeTruthy()
+    expect(result.accessToken).toBeTruthy()
   })
 })
