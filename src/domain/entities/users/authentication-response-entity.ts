@@ -1,4 +1,4 @@
-export interface AuthenticationResponseEntity {
+export type AuthenticationResponseEntity = {
   name: string
   email: string
   accessToken: string

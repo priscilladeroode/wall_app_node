@@ -9,7 +9,7 @@ import {
 import { serverError } from '../../presentation/helpers/http'
 import { LogErrorRepository } from '../../data/protocols/db/log/log-error-repository'
 
-interface SutTypes {
+type SutTypes = {
   sut: LogControllerDecorator
   controllerStub: Controller
   logErrorRepositoryStub: LogErrorRepository

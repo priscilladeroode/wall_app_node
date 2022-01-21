@@ -1,3 +1,3 @@
-export interface LoadAccountRequestModel {
+export type LoadAccountRequestModel = {
   email: string
 }

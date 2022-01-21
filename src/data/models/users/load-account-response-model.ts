@@ -1,4 +1,4 @@
-export interface LoadAccountResponseModel {
+export type LoadAccountResponseModel = {
   id: string
   name: string
   email: string
