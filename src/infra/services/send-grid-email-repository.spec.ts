@@ -1,5 +1,5 @@
 import { SendGridEmailRepository } from './send-grid-email-repository'
-
+import faker from 'faker'
 import axios from 'axios'
 
 jest.mock('axios', () => ({
@@ -16,8 +16,8 @@ const throwError = (): never => {
   throw new Error()
 }
 
-const email = 'any_email@gmail.com'
-const name = 'any_name'
+const email = faker.internet.email()
+const name = faker.name.findName()
 
 describe('Send Grid Email Repository', () => {
   test('Should not return on success', async () => {
