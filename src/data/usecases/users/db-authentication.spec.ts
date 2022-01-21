@@ -183,4 +183,13 @@ describe('DBAuthentication', () => {
       accessToken: 'any_token'
     })
   })
+
+  test('Should throw if UpdateAccessTokenRepository throws', async () => {
+    const { sut, updateAccessTokenRepositoryStub } = makeSut()
+    jest
+      .spyOn(updateAccessTokenRepositoryStub, 'update')
+      .mockReturnValueOnce(Promise.reject(new Error()))
+    const promise = sut.auth(makeFakeRequest())
+    await expect(promise).rejects.toThrow()
+  })
 })
