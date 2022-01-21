@@ -4,7 +4,7 @@ import {
 } from '../../../domain/entities/users'
 import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
 import { HashComparer } from '../../protocols/cryptography/hash-comparer'
-import { TokenGenerator } from '../../protocols/cryptography/token_generator'
+import { Encrypter } from '../../protocols/cryptography/encrypter'
 import { LoadAccountByEmailRepository } from '../../protocols/db/users/load-account-by-email-repository'
 import { UpdateAccessTokenRepository } from '../../protocols/db/users/update-access-token-repository'
 
@@ -12,7 +12,7 @@ export class DBAuthentication implements AuthenticationUseCase {
   constructor (
     private readonly loadAccountByEmailRepository: LoadAccountByEmailRepository,
     private readonly hashComparer: HashComparer,
-    private readonly tokenGenerator: TokenGenerator,
+    private readonly encrypter: Encrypter,
     private readonly updateAccessTokenRepository: UpdateAccessTokenRepository
   ) {}
 
@@ -28,7 +28,7 @@ export class DBAuthentication implements AuthenticationUseCase {
         account.password
       )
       if (isValid) {
-        const token = await this.tokenGenerator.generate(account.id)
+        const token = await this.encrypter.generate(account.id)
         await this.updateAccessTokenRepository.update({
           id: account.id,
           accessToken: token
