@@ -5,7 +5,7 @@ import { ValidationComposite } from './validation-composite'
 
 const field = faker.random.word()
 
-interface SutTypes {
+type SutTypes = {
   sut: ValidationComposite
   validationStubs: Validation[]
 }

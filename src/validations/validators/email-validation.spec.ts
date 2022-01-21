@@ -4,7 +4,7 @@ import { InvalidParamError } from '../../presentation/errors'
 
 import faker from 'faker'
 
-interface SutTypes {
+type SutTypes = {
   sut: EmailValidation
   emailValidatorStub: EmailValidator
 }

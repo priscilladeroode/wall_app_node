@@ -10,7 +10,7 @@ import faker from 'faker'
 import { badRequest, ok, serverError } from '../../helpers/http'
 import { Validation } from '../../protocols/validation'
 
-interface SutTypes {
+type SutTypes = {
   sut: SignUpController
   addAccountStub: AddAccount
   validationStub: Validation

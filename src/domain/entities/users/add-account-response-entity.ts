@@ -1,3 +1,3 @@
-export interface AddAccountResponseEntity {
+export type AddAccountResponseEntity = {
   message: string
 }

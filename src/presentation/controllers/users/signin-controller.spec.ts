@@ -10,7 +10,7 @@ import {
 import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
 import { Validation } from '../../protocols/validation'
 
-interface SutTypes {
+type SutTypes = {
   sut: SignInController
   authenticationStub: AuthenticationUseCase
   validationStub: Validation

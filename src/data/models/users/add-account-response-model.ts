@@ -1,3 +1,3 @@
-export interface AddAccountResponseModel {
+export type AddAccountResponseModel = {
   message: string
 }
