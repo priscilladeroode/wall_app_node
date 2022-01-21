@@ -2,6 +2,12 @@ import request from 'supertest'
 import app from '../../../src/main/config/app'
 import { MongoHelper } from '../../infra/helpers/mongo-helper'
 import faker from 'faker'
+import { Collection } from 'mongodb'
+import { hash } from 'bcrypt'
+
+let collection: Collection
+
+const password = faker.internet.password()
 
 describe('SignUp Routes', () => {
   beforeAll(async () => {
@@ -13,12 +19,11 @@ describe('SignUp Routes', () => {
   })
 
   beforeEach(async () => {
-    const collection = MongoHelper.getCollection('users')
+    collection = MongoHelper.getCollection('users')
     await collection.deleteMany({})
   })
-  const password = faker.internet.password()
 
-  test('Should return a message on success', async () => {
+  test('Should return a 200 on signup success', async () => {
     await request(app)
       .post('/api/signup')
       .send({
@@ -26,6 +31,22 @@ describe('SignUp Routes', () => {
         email: faker.internet.email(),
         password: password,
         passwordConfirmation: password
+      })
+      .expect(200)
+  })
+
+  test('Should return 200 on signin success', async () => {
+    const hashedPassword = await hash(password, 12)
+    await collection.insertOne({
+      name: faker.name.findName(),
+      email: 'priscilla@gmail.com',
+      password: hashedPassword
+    })
+    await request(app)
+      .post('/api/signin')
+      .send({
+        email: 'priscilla@gmail.com',
+        password: password
       })
       .expect(200)
   })
