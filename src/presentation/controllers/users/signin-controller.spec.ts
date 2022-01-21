@@ -16,14 +16,18 @@ interface SutTypes {
   validationStub: Validation
 }
 
+const email = faker.internet.email()
+
 const fakeRequest = {
   body: {
-    email: faker.internet.email(),
+    email,
     password: faker.internet.password()
   }
 }
 
-const fakeAccessToken = {
+const fakeResponse = {
+  name: faker.name.findName(),
+  email,
   accessToken: 'any_accessToken'
 }
 
@@ -32,7 +36,7 @@ const makeAuthentication = (): AuthenticationUseCase => {
     async auth (
       authRequestEntity: AuthenticationRequestEntity
     ): Promise<AuthenticationResponseEntity> {
-      return await Promise.resolve(fakeAccessToken)
+      return await Promise.resolve(fakeResponse)
     }
   }
   return new AuthenticationUseCaseStub()
@@ -94,7 +98,7 @@ describe('Sign In Controller', () => {
     const { sut } = makeSut()
     const httpRequest = fakeRequest
     const httpResponse = await sut.handle(httpRequest)
-    expect(httpResponse).toEqual(ok(fakeAccessToken))
+    expect(httpResponse).toEqual(ok(fakeResponse))
   })
 
   test('Shoud call Validation with correct values', async () => {
