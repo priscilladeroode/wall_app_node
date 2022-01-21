@@ -91,7 +91,7 @@ const makeSut = (): SutTypes => {
 }
 
 describe('DBAuthentication', () => {
-  test('Should call encrypter with correct password', async () => {
+  test('Should call Hasher with correct password', async () => {
     const { sut, loadAccountByEmailRepositoryStub } = makeSut()
     const loadSpy = jest.spyOn(loadAccountByEmailRepositoryStub, 'load')
     await sut.auth(makeFakeRequest())
