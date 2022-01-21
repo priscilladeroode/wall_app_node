@@ -1,15 +1,21 @@
+import { ObjectId } from 'mongodb'
 import {
   AddAccountRequestModel,
   AddAccountResponseModel,
   LoadAccountRequestModel,
   LoadAccountResponseModel
 } from '../../../data/models/users'
+import { UpdateAccessTokenRequestModel } from '../../../data/models/users/update-access-token-request-model'
 import { AddAccountRepository } from '../../../data/protocols/db/users/add-account-repository'
 import { LoadAccountByEmailRepository } from '../../../data/protocols/db/users/load-account-by-email-repository'
+import { UpdateAccessTokenRepository } from '../../../data/protocols/db/users/update-access-token-repository'
 import { MongoHelper } from '../../helpers/mongo-helper'
 
 export class UserMongoRepository
-implements AddAccountRepository, LoadAccountByEmailRepository {
+implements
+    AddAccountRepository,
+    LoadAccountByEmailRepository,
+    UpdateAccessTokenRepository {
   async add (
     accountData: AddAccountRequestModel
   ): Promise<AddAccountResponseModel> {
@@ -37,5 +43,13 @@ implements AddAccountRepository, LoadAccountByEmailRepository {
     }
 
     return null
+  }
+
+  async updateAccessToken (data: UpdateAccessTokenRequestModel): Promise<void> {
+    const collection = MongoHelper.getCollection('users')
+    await collection.updateOne(
+      { _id: new ObjectId(data.id) },
+      { $set: { accessToken: data.accessToken } }
+    )
   }
 }
