@@ -4,6 +4,7 @@ import {
   AddAccountRequestModel,
   LoadAccountRequestModel
 } from '../../../data/models/users'
+import { UpdateAccessTokenRequestModel } from '../../../data/models/users/update-access-token-request-model'
 import { MongoHelper } from '../../helpers/mongo-helper'
 import { UserMongoRepository } from './user-mongo-repository'
 
@@ -63,5 +64,20 @@ describe('User Mongo Repository', () => {
     const sut = makeSut()
     const result = await sut.loadByEmail(loadByEmailRequestModel)
     expect(result).toBeFalsy()
+  })
+
+  test('Should update the account accessToken on success', async () => {
+    const sut = makeSut()
+    const account = await collection.insertOne(accountRequestModel)
+    const updateAccessTokenRequestModel: UpdateAccessTokenRequestModel = {
+      id: account.insertedId.toHexString(),
+      accessToken: 'any_accessToken'
+    }
+    await sut.updateAccessToken(updateAccessTokenRequestModel)
+    const result = await collection.findOne({
+      email: accountRequestModel.email
+    })
+    expect(result).toBeTruthy()
+    expect(result.accessToken).toBe(updateAccessTokenRequestModel.accessToken)
   })
 })
