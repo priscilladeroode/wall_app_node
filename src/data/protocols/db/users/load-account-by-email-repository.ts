@@ -4,7 +4,7 @@ import {
 } from '../../../models/users'
 
 export interface LoadAccountByEmailRepository {
-  load: (
+  loadByEmail: (
     accountData: LoadAccountRequestModel
   ) => Promise<LoadAccountResponseModel>
 }

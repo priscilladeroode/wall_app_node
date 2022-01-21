@@ -19,7 +19,7 @@ export class DBAuthentication implements AuthenticationUseCase {
   async auth (
     authRequestEntity: AuthenticationRequestEntity
   ): Promise<AuthenticationResponseEntity> {
-    const account = await this.loadAccountByEmailRepository.load({
+    const account = await this.loadAccountByEmailRepository.loadByEmail({
       email: authRequestEntity.email
     })
     if (account) {
