@@ -6,12 +6,14 @@ import { AuthenticationUseCase } from '../../../domain/usecases/users/authentica
 import { HashComparer } from '../../protocols/cryptography/hash-comparer'
 import { TokenGenerator } from '../../protocols/cryptography/token_generator'
 import { LoadAccountByEmailRepository } from '../../protocols/db/users/load-account-by-email-repository'
+import { UpdateAccessTokenRepository } from '../../protocols/db/users/update-access-token-repository'
 
 export class DBAuthentication implements AuthenticationUseCase {
   constructor (
     private readonly loadAccountByEmailRepository: LoadAccountByEmailRepository,
     private readonly hashComparer: HashComparer,
-    private readonly tokenGenerator: TokenGenerator
+    private readonly tokenGenerator: TokenGenerator,
+    private readonly updateAccessTokenRepository: UpdateAccessTokenRepository
   ) {}
 
   async auth (
@@ -27,6 +29,10 @@ export class DBAuthentication implements AuthenticationUseCase {
       )
       if (isValid) {
         const token = await this.tokenGenerator.generate(account.id)
+        await this.updateAccessTokenRepository.update({
+          id: account.id,
+          accessToken: token
+        })
         const responseEntity: AuthenticationResponseEntity = {
           accessToken: token
         }
