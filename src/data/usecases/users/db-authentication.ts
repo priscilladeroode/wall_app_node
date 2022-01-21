@@ -34,6 +34,8 @@ export class DBAuthentication implements AuthenticationUseCase {
           accessToken: token
         })
         const responseEntity: AuthenticationResponseEntity = {
+          name: account.name,
+          email: account.email,
           accessToken: token
         }
         return responseEntity
