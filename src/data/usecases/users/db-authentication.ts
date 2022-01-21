@@ -21,11 +21,17 @@ export class DBAuthentication implements AuthenticationUseCase {
       email: authRequestEntity.email
     })
     if (account) {
-      await this.hashComparer.compare(
+      const isValid = await this.hashComparer.compare(
         authRequestEntity.password,
         account.password
       )
-      await this.tokenGenerator.generate(account.id)
+      if (isValid) {
+        const token = await this.tokenGenerator.generate(account.id)
+        const responseEntity: AuthenticationResponseEntity = {
+          accessToken: token
+        }
+        return responseEntity
+      }
     }
     return null
   }
