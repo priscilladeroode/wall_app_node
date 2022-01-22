@@ -4,7 +4,7 @@ import { AddPostController } from './add-post-controller'
 import faker from 'faker'
 import { HttpRequest } from '../../protocols'
 import { MissingParamError, ServerError } from '../../errors'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, created, serverError } from '../../helpers/http'
 import { AddPostUseCase } from '../../../domain/usecases/posts/add-post-usecase'
 import {
   AddPostRequestEntity,
@@ -31,7 +31,7 @@ const request: HttpRequest = {
 
 const id = faker.datatype.uuid()
 
-const addPostResponse: AddPostRequestEntity = { title, content, uid }
+const addPostRequest: AddPostRequestEntity = { title, content, uid }
 
 const response: AddPostResponseEntity = { id }
 
@@ -92,7 +92,7 @@ describe('AddPostController', () => {
       const { sut, addPostUseCaseStub } = makeSut()
       const addSpy = jest.spyOn(addPostUseCaseStub, 'add')
       await sut.handle(request)
-      expect(addSpy).toHaveBeenCalledWith(addPostResponse)
+      expect(addSpy).toHaveBeenCalledWith(addPostRequest)
     })
 
     test('Shoud return 500 if AddPostUseCase throws', async () => {
@@ -103,5 +103,29 @@ describe('AddPostController', () => {
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
+  })
+
+  describe('AddPostUseCase', () => {
+    test('Shoud call AddPostUseCase with correct values', async () => {
+      const { sut, addPostUseCaseStub } = makeSut()
+      const addSpy = jest.spyOn(addPostUseCaseStub, 'add')
+      await sut.handle(request)
+      expect(addSpy).toHaveBeenCalledWith(addPostRequest)
+    })
+
+    test('Shoud return 500 if AddPostUseCase throws', async () => {
+      const { sut, addPostUseCaseStub } = makeSut()
+      jest.spyOn(addPostUseCaseStub, 'add').mockImplementationOnce(async () => {
+        return await Promise.reject(new Error())
+      })
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(serverError(new ServerError(null)))
+    })
+  })
+
+  test('Shoud return 201 if valid post is created', async () => {
+    const { sut } = makeSut()
+    const httpResponse = await sut.handle(request)
+    expect(httpResponse).toEqual(created(response))
   })
 })
