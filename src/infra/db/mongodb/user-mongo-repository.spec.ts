@@ -3,29 +3,25 @@ import { Collection } from 'mongodb'
 import {
   AddAccountRequestModel,
   CheckAccountRequestModel,
+  LoadAccountByTokenRequestModel,
   LoadAccountRequestModel
 } from '../../../data/models/users'
 import { UpdateAccessTokenRequestModel } from '../../../data/models/users/update-access-token-request-model'
 import { MongoHelper } from '../../helpers/mongo-helper'
 import { UserMongoRepository } from './user-mongo-repository'
 
-const fakeName = faker.name.findName()
-const fakeEmail = faker.internet.email()
-const fakePassword = faker.internet.password()
+const name = faker.name.findName()
+const email = faker.internet.email()
+const password = faker.internet.password()
+const accessToken = faker.datatype.uuid()
 
-const loadByEmailRequestModel: LoadAccountRequestModel = {
-  email: fakeEmail
-}
+const loadByEmailRequestModel: LoadAccountRequestModel = { email }
 
-const checkByEmailRequestModel: CheckAccountRequestModel = {
-  email: fakeEmail
-}
+const checkByEmailRequestModel: CheckAccountRequestModel = { email }
 
-const accountRequestModel: AddAccountRequestModel = {
-  name: fakeName,
-  email: fakeEmail,
-  password: fakePassword
-}
+const accountRequestModel: AddAccountRequestModel = { name, email, password }
+
+const loadByTokenRequestModel: LoadAccountByTokenRequestModel = { accessToken }
 
 const makeSut = (): UserMongoRepository => {
   return new UserMongoRepository()
@@ -47,7 +43,7 @@ describe('User Mongo Repository', () => {
     await collection.deleteMany({})
   })
 
-  describe('add', () => {
+  describe('AddAccountRepository', () => {
     test('Should return an account on add success', async () => {
       const sut = makeSut()
       const result = await sut.add(accountRequestModel)
@@ -56,7 +52,7 @@ describe('User Mongo Repository', () => {
     })
   })
 
-  describe('loadByEmail', () => {
+  describe('LoadAccountByEmailRepository', () => {
     test('Should return an account on loadByEmail success', async () => {
       const sut = makeSut()
       await collection.insertOne(accountRequestModel)
@@ -75,7 +71,7 @@ describe('User Mongo Repository', () => {
     })
   })
 
-  describe('', () => {
+  describe('UpdateAccessTokenRepository', () => {
     test('Should update the account accessToken on success', async () => {
       const sut = makeSut()
       const account = await collection.insertOne(accountRequestModel)
@@ -105,6 +101,21 @@ describe('User Mongo Repository', () => {
       const sut = makeSut()
       const result = await sut.checkByEmail(checkByEmailRequestModel)
       expect(result.exists).toBeFalsy()
+    })
+  })
+
+  describe('LoadAccountByTokenRepository', () => {
+    test('Should return an id on loadByToken success', async () => {
+      const sut = makeSut()
+      await collection.insertOne({
+        name,
+        email,
+        password,
+        accessToken
+      })
+      const result = await sut.loadByToken(loadByTokenRequestModel)
+      expect(result).toBeTruthy()
+      expect(result.uid).toBeTruthy()
     })
   })
 })
