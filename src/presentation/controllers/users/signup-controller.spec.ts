@@ -1,6 +1,8 @@
 import {
   AddAccountRequestEntity,
-  AddAccountResponseEntity
+  AddAccountResponseEntity,
+  AuthenticationRequestEntity,
+  AuthenticationResponseEntity
 } from '../../../domain/entities/users'
 import { AddAccount } from '../../../domain/usecases/users'
 import { MissingParamError, ServerError } from '../../errors'
@@ -9,11 +11,13 @@ import { SignUpController } from './signup-controller'
 import faker from 'faker'
 import { badRequest, ok, serverError } from '../../helpers/http'
 import { Validation } from '../../protocols/validation'
+import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
 
 type SutTypes = {
   sut: SignUpController
   addAccountStub: AddAccount
   validationStub: Validation
+  authenticationStub: AuthenticationUseCase
 }
 
 const fakeMessage = {
@@ -21,14 +25,20 @@ const fakeMessage = {
 }
 
 const fakePassword = faker.internet.password()
-
+const email = faker.internet.email()
 const fakeRequest = {
   body: {
     name: faker.name.findName(),
-    email: faker.internet.email(),
+    email,
     password: fakePassword,
     passwordConfirmation: fakePassword
   }
+}
+
+const fakeResponse = {
+  name: faker.name.findName(),
+  email,
+  accessToken: 'any_accessToken'
 }
 
 const makeAddAccount = (): AddAccount => {
@@ -51,14 +61,31 @@ const makeValidation = (): Validation => {
   return new ValidationStub()
 }
 
+const makeAuthentication = (): AuthenticationUseCase => {
+  class AuthenticationUseCaseStub implements AuthenticationUseCase {
+    async auth (
+      authRequestEntity: AuthenticationRequestEntity
+    ): Promise<AuthenticationResponseEntity> {
+      return await Promise.resolve(fakeResponse)
+    }
+  }
+  return new AuthenticationUseCaseStub()
+}
+
 const makeSut = (): SutTypes => {
+  const authenticationStub = makeAuthentication()
   const validationStub = makeValidation()
   const addAccountStub = makeAddAccount()
-  const sut = new SignUpController(addAccountStub, validationStub)
+  const sut = new SignUpController(
+    addAccountStub,
+    validationStub,
+    authenticationStub
+  )
   return {
     sut,
     addAccountStub,
-    validationStub
+    validationStub,
+    authenticationStub
   }
 }
 
@@ -108,5 +135,16 @@ describe('SignUp Controller', () => {
     const httpRequest = fakeRequest
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse).toEqual(badRequest(new MissingParamError('any_field')))
+  })
+
+  test('Shoud call AuthenticationUseCase with correct values', async () => {
+    const { sut, authenticationStub } = makeSut()
+    const addSpy = jest.spyOn(authenticationStub, 'auth')
+    const httpRequest = fakeRequest
+    await sut.handle(httpRequest)
+    expect(addSpy).toHaveBeenCalledWith({
+      email: fakeRequest.body.email.toLowerCase(),
+      password: fakeRequest.body.password
+    })
   })
 })
