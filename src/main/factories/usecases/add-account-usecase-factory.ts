@@ -9,5 +9,5 @@ export const makeAddAccountUseCase = (): AddAccount => {
   const hasher = new BcryptAdapter(salt)
   const repository = new UserMongoRepository()
   const sendEmail = new SendGridEmailRepository()
-  return new DBAddAccount(hasher, repository, sendEmail)
+  return new DBAddAccount(hasher, repository, sendEmail, repository)
 }
