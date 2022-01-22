@@ -80,4 +80,14 @@ describe('User Mongo Repository', () => {
     expect(result).toBeTruthy()
     expect(result.accessToken).toBe(updateAccessTokenRequestModel.accessToken)
   })
+
+  describe('CheckAccountByEmailRepository', () => {
+    test('Should return true when checkByEmail finds account', async () => {
+      const sut = makeSut()
+      await collection.insertOne(accountRequestModel)
+      const result = await sut.checkByEmail(loadByEmailRequestModel)
+      expect(result).toBeTruthy()
+      expect(result.exists).toBe(true)
+    })
+  })
 })
