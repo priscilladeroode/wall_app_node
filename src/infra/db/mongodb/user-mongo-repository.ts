@@ -2,11 +2,14 @@ import { ObjectId } from 'mongodb'
 import {
   AddAccountRequestModel,
   AddAccountResponseModel,
+  CheckAccountRequestModel,
+  CheckAccountResponseModel,
   LoadAccountRequestModel,
   LoadAccountResponseModel
 } from '../../../data/models/users'
 import { UpdateAccessTokenRequestModel } from '../../../data/models/users/update-access-token-request-model'
 import { AddAccountRepository } from '../../../data/protocols/db/users/add-account-repository'
+import { CheckAccountByEmailRepository } from '../../../data/protocols/db/users/check-account-by-email-repository'
 import { LoadAccountByEmailRepository } from '../../../data/protocols/db/users/load-account-by-email-repository'
 import { UpdateAccessTokenRepository } from '../../../data/protocols/db/users/update-access-token-repository'
 import { MongoHelper } from '../../helpers/mongo-helper'
@@ -15,7 +18,8 @@ export class UserMongoRepository
 implements
     AddAccountRepository,
     LoadAccountByEmailRepository,
-    UpdateAccessTokenRepository {
+    UpdateAccessTokenRepository,
+    CheckAccountByEmailRepository {
   async add (
     accountData: AddAccountRequestModel
   ): Promise<AddAccountResponseModel> {
@@ -43,6 +47,26 @@ implements
     }
 
     return null
+  }
+
+  async checkByEmail (
+    data: CheckAccountRequestModel
+  ): Promise<CheckAccountResponseModel> {
+    const accountCollection = MongoHelper.getCollection('users')
+    const account = await accountCollection.findOne(
+      {
+        email: data.email
+      },
+      {
+        projection: {
+          _id: 1
+        }
+      }
+    )
+    const exists: CheckAccountResponseModel = {
+      exists: account !== null
+    }
+    return exists
   }
 
   async updateAccessToken (data: UpdateAccessTokenRequestModel): Promise<void> {
