@@ -4,7 +4,7 @@ import {
 } from '../../domain/entities/users'
 import { LoadAccountByTokenUseCase } from '../../domain/usecases/users/load-account-by-token-usecase'
 import { AccessDeniedError } from '../errors'
-import { forbidden } from '../helpers/http'
+import { forbidden, ok } from '../helpers/http'
 import { AuthMiddleware } from './auth-middleware'
 
 import faker from 'faker'
@@ -15,7 +15,7 @@ type SutTypes = {
   loadAccountByTokenStub: LoadAccountByTokenUseCase
 }
 
-const id = faker.datatype.uuid()
+const uid = faker.datatype.uuid()
 const accessToken = 'any_token'
 
 const request: HttpRequest = {
@@ -25,7 +25,7 @@ const request: HttpRequest = {
 }
 
 const loadAccountRequest: LoadAccountByTokenRequestEntity = { accessToken }
-const loadAccountResponse: LoadAccountByTokenResponseEntity = { id }
+const loadAccountResponse: LoadAccountByTokenResponseEntity = { uid }
 
 const makeLoadAccountByToken = (): LoadAccountByTokenUseCase => {
   class LoadAccountByTokenStub implements LoadAccountByTokenUseCase {
@@ -65,5 +65,11 @@ describe('AuthMiddleware', () => {
       .mockResolvedValueOnce(Promise.resolve(null))
     const httpResponse = await sut.handle({})
     expect(httpResponse).toStrictEqual(forbidden(new AccessDeniedError()))
+  })
+
+  test('Should return 200 if loadAccountByToken returns an id', async () => {
+    const { sut } = makeSut()
+    const httpResponse = await sut.handle(request)
+    expect(httpResponse).toStrictEqual(ok(loadAccountResponse))
   })
 })
