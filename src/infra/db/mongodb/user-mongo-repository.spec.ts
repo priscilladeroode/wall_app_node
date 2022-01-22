@@ -46,7 +46,7 @@ describe('User Mongo Repository', () => {
     const sut = makeSut()
     const result = await sut.add(accountRequestModel)
     expect(result).toBeTruthy()
-    expect(result.message).toBeTruthy()
+    expect(result.registered).toBeTruthy()
   })
 
   test('Should return an account on loadByEmail success', async () => {

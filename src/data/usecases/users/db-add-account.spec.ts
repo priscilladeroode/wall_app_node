@@ -24,8 +24,9 @@ const makeHasher = (): Hasher => {
   }
   return new HasherStub()
 }
-const fakeMessage = {
-  message: 'User successfully registered'
+
+const response: AddAccountResponseModel = {
+  registered: true
 }
 
 const makeAddAccountRepository = (): AddAccountRepository => {
@@ -33,7 +34,7 @@ const makeAddAccountRepository = (): AddAccountRepository => {
     async add (
       accountData: AddAccountRequestModel
     ): Promise<AddAccountResponseModel> {
-      return await Promise.resolve(fakeMessage)
+      return await Promise.resolve(response)
     }
   }
   return new AddAccountRepositoryStub()
@@ -112,11 +113,11 @@ describe('DBAddAccount Usecase', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should return an account on success', async () => {
+  test('Should return true on success', async () => {
     const { sut } = makeSut()
     const accountData = mockAddAccountRequestEntity()
     const result = await sut.add(accountData)
-    expect(result).toEqual(fakeMessage)
+    expect(result).toEqual(response)
   })
 
   test('Should call SendWelcomeEmailRepository with correct values', async () => {
