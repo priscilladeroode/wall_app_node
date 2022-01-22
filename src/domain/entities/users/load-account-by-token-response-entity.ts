@@ -1,3 +1,3 @@
 export type LoadAccountByTokenResponseEntity = {
-  id: string
+  uid: string
 }
