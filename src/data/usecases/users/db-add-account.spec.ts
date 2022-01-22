@@ -170,4 +170,14 @@ describe('DBAddAccount Usecase', () => {
     const promise = sut.add(accountData)
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should return false if CheckAccountByEmailRepository returns true', async () => {
+    const { sut, checkAccountByEmailRepositoryStub } = makeSut()
+    jest
+      .spyOn(checkAccountByEmailRepositoryStub, 'checkByEmail')
+      .mockReturnValueOnce(Promise.resolve({ exists: true }))
+    const accountData = mockAddAccountRequestEntity()
+    const result = await sut.add(accountData)
+    expect(result).toStrictEqual({ registered: false })
+  })
 })
