@@ -89,5 +89,11 @@ describe('User Mongo Repository', () => {
       expect(result).toBeTruthy()
       expect(result.exists).toBe(true)
     })
+
+    test('Should return false when checkByEmail finds no account', async () => {
+      const sut = makeSut()
+      const result = await sut.checkByEmail(loadByEmailRequestModel)
+      expect(result.exists).toBeFalsy()
+    })
   })
 })
