@@ -3,6 +3,8 @@ import { AddPostController } from './add-post-controller'
 
 import faker from 'faker'
 import { HttpRequest } from '../../protocols'
+import { MissingParamError } from '../../errors'
+import { badRequest } from '../../helpers/http'
 
 type SutTypes = {
   sut: AddPostController
@@ -46,6 +48,17 @@ describe('AddPostController', () => {
       const validateSpy = jest.spyOn(validationStub, 'validate')
       await sut.handle(request)
       expect(validateSpy).toHaveBeenCalledWith(request.body)
+    })
+
+    test('Shoud return 400 if Validation returns an error', async () => {
+      const { sut, validationStub } = makeSut()
+      jest
+        .spyOn(validationStub, 'validate')
+        .mockReturnValueOnce(new MissingParamError('any_field'))
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(
+        badRequest(new MissingParamError('any_field'))
+      )
     })
   })
 })
