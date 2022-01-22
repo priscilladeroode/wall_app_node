@@ -54,4 +54,13 @@ describe('AddPostUseCase', () => {
     await sut.add(request)
     expect(addSpy).toHaveBeenCalledWith(addPostRequest)
   })
+
+  test('Should throw if AddPostRepository throws', async () => {
+    const { sut, addPostRepositoryStub } = makeSut()
+    jest
+      .spyOn(addPostRepositoryStub, 'add')
+      .mockReturnValueOnce(Promise.reject(new Error()))
+    const promise = sut.add(request)
+    await expect(promise).rejects.toThrow()
+  })
 })
