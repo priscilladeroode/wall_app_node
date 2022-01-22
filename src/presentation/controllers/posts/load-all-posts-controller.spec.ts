@@ -4,7 +4,7 @@ import {
 } from '../../../domain/entities/posts'
 import { LoadAllPostsUseCase } from '../../../domain/usecases/posts/load-all-posts-usecase'
 import { ServerError } from '../../errors'
-import { serverError } from '../../helpers/http'
+import { ok, serverError } from '../../helpers/http'
 import { LoadAllPostsController } from './load-all-posts-controller'
 
 import faker from 'faker'
@@ -12,6 +12,10 @@ import faker from 'faker'
 type SutTypes = {
   sut: LoadAllPostsController
   loadAllPostsUseCaseStub: LoadAllPostsUseCase
+}
+
+const request = {
+  body: {}
 }
 
 const title = faker.lorem.sentence()
@@ -53,10 +57,13 @@ describe('AddPostController', () => {
       .mockImplementationOnce(async () => {
         return await Promise.reject(new Error())
       })
-    const request = {
-      body: {}
-    }
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(serverError(new ServerError(null)))
+  })
+
+  test('Shoud return 200 if LoadAllPostsUseCase returns posts', async () => {
+    const { sut } = makeSut()
+    const httpResponse = await sut.handle(request)
+    expect(httpResponse).toEqual(ok(loadPostsResponseEntity))
   })
 })
