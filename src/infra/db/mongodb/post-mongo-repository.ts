@@ -42,6 +42,9 @@ implements AddPostRepository, LoadAllPostsRepository {
       .build()
 
     const result = await collection.aggregate(query).toArray()
-    return MongoHelper.mapCollection(result)
+    if (result.length > 0) {
+      return MongoHelper.mapCollection(result)
+    }
+    return result as LoadPostsResponseModel
   }
 }
