@@ -63,53 +63,65 @@ const makeSut = (): SutTypes => {
 }
 
 describe('DbLoadAccountByToken', () => {
-  test('Should call Descrypter with correct value', async () => {
-    const { sut, decrypterStub } = makeSut()
-    const decryptSpy = jest.spyOn(decrypterStub, 'decrypt')
-    await sut.loadByToken(loadByTokenRequest)
-    expect(decryptSpy).toHaveBeenCalledWith(loadByTokenRequest.accessToken)
+  describe('Descrypter', () => {
+    test('Should call Descrypter with correct value', async () => {
+      const { sut, decrypterStub } = makeSut()
+      const decryptSpy = jest.spyOn(decrypterStub, 'decrypt')
+      await sut.loadByToken(loadByTokenRequest)
+      expect(decryptSpy).toHaveBeenCalledWith(loadByTokenRequest.accessToken)
+    })
+
+    test('Should return null Descrypter returns null', async () => {
+      const { sut, decrypterStub } = makeSut()
+      jest
+        .spyOn(decrypterStub, 'decrypt')
+        .mockReturnValueOnce(Promise.resolve(null))
+      const result = await sut.loadByToken(request)
+      expect(result).toBeNull()
+    })
+    test('Should throw if Descrypter throws', async () => {
+      const { sut, decrypterStub } = makeSut()
+      jest
+        .spyOn(decrypterStub, 'decrypt')
+        .mockReturnValueOnce(Promise.reject(new Error()))
+      const promise = sut.loadByToken(request)
+      await expect(promise).rejects.toThrow()
+    })
   })
 
-  test('Should return null Descrypter returns null', async () => {
-    const { sut, decrypterStub } = makeSut()
-    jest
-      .spyOn(decrypterStub, 'decrypt')
-      .mockReturnValueOnce(Promise.resolve(null))
-    const result = await sut.loadByToken(request)
-    expect(result).toBeNull()
-  })
+  describe('Descrypter', () => {
+    test('Should call LoadAccountByTokenRepository with correct value', async () => {
+      const { sut, loadAccountByTokenRepositoryStub } = makeSut()
+      const decryptSpy = jest.spyOn(
+        loadAccountByTokenRepositoryStub,
+        'loadByToken'
+      )
+      await sut.loadByToken(request)
+      expect(decryptSpy).toHaveBeenCalledWith(loadByTokenRequest)
+    })
 
-  test('Should call LoadAccountByTokenRepository with correct value', async () => {
-    const { sut, loadAccountByTokenRepositoryStub } = makeSut()
-    const decryptSpy = jest.spyOn(
-      loadAccountByTokenRepositoryStub,
-      'loadByToken'
-    )
-    await sut.loadByToken(request)
-    expect(decryptSpy).toHaveBeenCalledWith(loadByTokenRequest)
-  })
+    test('Should return null LoadAccountByTokenRepository returns null', async () => {
+      const { sut, loadAccountByTokenRepositoryStub } = makeSut()
+      jest
+        .spyOn(loadAccountByTokenRepositoryStub, 'loadByToken')
+        .mockReturnValueOnce(Promise.resolve(null))
+      const result = await sut.loadByToken(request)
+      expect(result).toBeNull()
+    })
 
-  test('Should return null LoadAccountByTokenRepository returns null', async () => {
-    const { sut, loadAccountByTokenRepositoryStub } = makeSut()
-    jest
-      .spyOn(loadAccountByTokenRepositoryStub, 'loadByToken')
-      .mockReturnValueOnce(Promise.resolve(null))
-    const result = await sut.loadByToken(request)
-    expect(result).toBeNull()
+    test('Should throw if LoadAccountByTokenRepository throws', async () => {
+      const { sut, loadAccountByTokenRepositoryStub } = makeSut()
+      jest
+        .spyOn(loadAccountByTokenRepositoryStub, 'loadByToken')
+        .mockReturnValueOnce(Promise.reject(new Error()))
+      const promise = sut.loadByToken(request)
+      await expect(promise).rejects.toThrow()
+    })
   })
 
   test('Should return an id on success', async () => {
     const { sut } = makeSut()
     const result = await sut.loadByToken(request)
     expect(result).toBe(loadByTokenResponse)
-  })
-
-  test('Should throw if Descrypter throws', async () => {
-    const { sut, decrypterStub } = makeSut()
-    jest
-      .spyOn(decrypterStub, 'decrypt')
-      .mockReturnValueOnce(Promise.reject(new Error()))
-    const promise = sut.loadByToken(request)
-    await expect(promise).rejects.toThrow()
   })
 })
