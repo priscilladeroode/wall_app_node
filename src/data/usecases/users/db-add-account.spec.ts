@@ -126,7 +126,7 @@ describe('DBAddAccount Usecase', () => {
     })
   })
 
-  test('Should throw if Hasher throws', async () => {
+  test('Should throw if AddAccountRepository throws', async () => {
     const { sut, addAccountRepositoryStub } = makeSut()
     jest
       .spyOn(addAccountRepositoryStub, 'add')
