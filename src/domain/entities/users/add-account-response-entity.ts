@@ -1,3 +1,3 @@
 export type AddAccountResponseEntity = {
-  message: string
+  registered: boolean
 }
