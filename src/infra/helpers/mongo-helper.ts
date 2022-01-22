@@ -18,8 +18,11 @@ export const MongoHelper = {
     const { _id, ...rest } = data
     return {
       id: _id.toHexString(),
-      ...rest,
-      createdAt: _id.getTimestamp().toLocaleDateString('pt-BR')
+      ...rest
     }
+  },
+
+  mapCollection: (collection: any[]): any[] => {
+    return collection.map((c) => MongoHelper.map(c))
   }
 }
