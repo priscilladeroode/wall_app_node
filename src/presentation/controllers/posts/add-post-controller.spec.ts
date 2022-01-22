@@ -5,10 +5,16 @@ import faker from 'faker'
 import { HttpRequest } from '../../protocols'
 import { MissingParamError } from '../../errors'
 import { badRequest } from '../../helpers/http'
+import { AddPostUseCase } from '../../../domain/usecases/posts/add-post-usecase'
+import {
+  AddPostRequestEntity,
+  AddPostResponseEntity
+} from '../../../domain/entities/posts'
 
 type SutTypes = {
   sut: AddPostController
   validationStub: Validation
+  addPostUseCaseStub: AddPostUseCase
 }
 
 const title = faker.lorem.sentence()
@@ -23,6 +29,12 @@ const request: HttpRequest = {
   }
 }
 
+const id = faker.datatype.uuid()
+
+const addPostResponse: AddPostRequestEntity = { title, content, uid }
+
+const response: AddPostResponseEntity = { id }
+
 const makeValidation = (): Validation => {
   class ValidationStub implements Validation {
     validate (input: any): Error {
@@ -32,12 +44,25 @@ const makeValidation = (): Validation => {
   return new ValidationStub()
 }
 
+const makeAddPostUseCase = (): AddPostUseCase => {
+  class AddPostUseCaseStub implements AddPostUseCase {
+    async add (
+      authRequestEntity: AddPostRequestEntity
+    ): Promise<AddPostResponseEntity> {
+      return await Promise.resolve(response)
+    }
+  }
+  return new AddPostUseCaseStub()
+}
+
 const makeSut = (): SutTypes => {
   const validationStub = makeValidation()
-  const sut = new AddPostController(validationStub)
+  const addPostUseCaseStub = makeAddPostUseCase()
+  const sut = new AddPostController(validationStub, addPostUseCaseStub)
   return {
     sut,
-    validationStub
+    validationStub,
+    addPostUseCaseStub
   }
 }
 
@@ -59,6 +84,15 @@ describe('AddPostController', () => {
       expect(httpResponse).toEqual(
         badRequest(new MissingParamError('any_field'))
       )
+    })
+  })
+
+  describe('AddPostUseCase', () => {
+    test('Shoud call AddPostUseCase with correct values', async () => {
+      const { sut, addPostUseCaseStub } = makeSut()
+      const addSpy = jest.spyOn(addPostUseCaseStub, 'add')
+      await sut.handle(request)
+      expect(addSpy).toHaveBeenCalledWith(addPostResponse)
     })
   })
 })
