@@ -61,4 +61,10 @@ describe('DBLoadAllPosts', () => {
       await expect(promise).rejects.toThrow()
     })
   })
+
+  test('Should return a list of posts on success', async () => {
+    const { sut } = makeSut()
+    const result = await sut.loadAll()
+    expect(result).toEqual(loadPostResponseModel)
+  })
 })
