@@ -4,6 +4,8 @@ import {
   AddAccountResponseModel,
   CheckAccountRequestModel,
   CheckAccountResponseModel,
+  LoadAccountByTokenRequestModel,
+  LoadAccountByTokenResponseModel,
   LoadAccountRequestModel,
   LoadAccountResponseModel
 } from '../../../data/models/users'
@@ -11,6 +13,7 @@ import { UpdateAccessTokenRequestModel } from '../../../data/models/users/update
 import { AddAccountRepository } from '../../../data/protocols/db/users/add-account-repository'
 import { CheckAccountByEmailRepository } from '../../../data/protocols/db/users/check-account-by-email-repository'
 import { LoadAccountByEmailRepository } from '../../../data/protocols/db/users/load-account-by-email-repository'
+import { LoadAccountByTokenRepository } from '../../../data/protocols/db/users/load-account-by-token-repository'
 import { UpdateAccessTokenRepository } from '../../../data/protocols/db/users/update-access-token-repository'
 import { MongoHelper } from '../../helpers/mongo-helper'
 
@@ -19,7 +22,8 @@ implements
     AddAccountRepository,
     LoadAccountByEmailRepository,
     UpdateAccessTokenRepository,
-    CheckAccountByEmailRepository {
+    CheckAccountByEmailRepository,
+    LoadAccountByTokenRepository {
   async add (
     accountData: AddAccountRequestModel
   ): Promise<AddAccountResponseModel> {
@@ -75,5 +79,24 @@ implements
       { _id: new ObjectId(data.id) },
       { $set: { accessToken: data.accessToken } }
     )
+  }
+
+  async loadByToken (
+    model: LoadAccountByTokenRequestModel
+  ): Promise<LoadAccountByTokenResponseModel> {
+    const collection = MongoHelper.getCollection('users')
+    const result = await collection.findOne(model, {
+      projection: {
+        _id: 1
+      }
+    })
+    console.log(result)
+    if (result) {
+      const model: LoadAccountByTokenResponseModel = {
+        uid: result._id.toHexString()
+      }
+      return model
+    }
+    return null
   }
 }
