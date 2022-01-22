@@ -5,11 +5,11 @@ import {
   AuthenticationResponseEntity
 } from '../../../domain/entities/users'
 import { AddAccount } from '../../../domain/usecases/users'
-import { MissingParamError, ServerError } from '../../errors'
+import { EmailInUseError, MissingParamError, ServerError } from '../../errors'
 import { SignUpController } from './signup-controller'
 
 import faker from 'faker'
-import { badRequest, ok, serverError } from '../../helpers/http'
+import { badRequest, forbidden, ok, serverError } from '../../helpers/http'
 import { Validation } from '../../protocols/validation'
 import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
 
@@ -18,10 +18,6 @@ type SutTypes = {
   addAccountStub: AddAccount
   validationStub: Validation
   authenticationStub: AuthenticationUseCase
-}
-
-const fakeMessage = {
-  message: 'User successfully registered'
 }
 
 const fakePassword = faker.internet.password()
@@ -46,7 +42,7 @@ const makeAddAccount = (): AddAccount => {
     async add (
       account: AddAccountRequestEntity
     ): Promise<AddAccountResponseEntity> {
-      return await Promise.resolve(fakeMessage)
+      return await Promise.resolve({ registered: true })
     }
   }
   return new AddAccountStub()
@@ -156,5 +152,17 @@ describe('SignUp Controller', () => {
     const httpRequest = fakeRequest
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse).toEqual(serverError(new ServerError(null)))
+  })
+
+  test('Shoud return 403 if AddAccount returns false', async () => {
+    const { sut, addAccountStub } = makeSut()
+    jest
+      .spyOn(addAccountStub, 'add')
+      .mockImplementationOnce(
+        async () => await Promise.resolve({ registered: false })
+      )
+    const httpRequest = fakeRequest
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse).toEqual(forbidden(new EmailInUseError()))
   })
 })
