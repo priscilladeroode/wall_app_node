@@ -3,8 +3,8 @@ import { AddPostController } from './add-post-controller'
 
 import faker from 'faker'
 import { HttpRequest } from '../../protocols'
-import { MissingParamError } from '../../errors'
-import { badRequest } from '../../helpers/http'
+import { MissingParamError, ServerError } from '../../errors'
+import { badRequest, serverError } from '../../helpers/http'
 import { AddPostUseCase } from '../../../domain/usecases/posts/add-post-usecase'
 import {
   AddPostRequestEntity,
@@ -93,6 +93,15 @@ describe('AddPostController', () => {
       const addSpy = jest.spyOn(addPostUseCaseStub, 'add')
       await sut.handle(request)
       expect(addSpy).toHaveBeenCalledWith(addPostResponse)
+    })
+
+    test('Shoud return 500 if AddPostUseCase throws', async () => {
+      const { sut, addPostUseCaseStub } = makeSut()
+      jest.spyOn(addPostUseCaseStub, 'add').mockImplementationOnce(async () => {
+        return await Promise.reject(new Error())
+      })
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
   })
 })
