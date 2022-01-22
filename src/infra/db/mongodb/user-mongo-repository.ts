@@ -90,7 +90,6 @@ implements
         _id: 1
       }
     })
-    console.log(result)
     if (result) {
       const model: LoadAccountByTokenResponseModel = {
         uid: result._id.toHexString()
