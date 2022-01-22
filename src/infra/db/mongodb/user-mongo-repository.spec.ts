@@ -117,5 +117,11 @@ describe('User Mongo Repository', () => {
       expect(result).toBeTruthy()
       expect(result.uid).toBeTruthy()
     })
+
+    test('Should return null if loadByToken fails', async () => {
+      const sut = makeSut()
+      const result = await sut.loadByToken(loadByTokenRequestModel)
+      expect(result).toBeFalsy()
+    })
   })
 })
