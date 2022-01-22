@@ -1,5 +1,5 @@
 import { AddPostUseCase } from '../../../domain/usecases/posts/add-post-usecase'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, created, serverError } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 
@@ -16,7 +16,8 @@ export class AddPostController implements Controller {
         return badRequest(error)
       }
 
-      await this.addPostUseCase.add(httpRequest.body)
+      const post = await this.addPostUseCase.add(httpRequest.body)
+      return created(post)
     } catch (error) {
       return serverError(error)
     }
