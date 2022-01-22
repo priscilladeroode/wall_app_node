@@ -17,9 +17,12 @@ export class DbLoadAccountByToken implements LoadAccountByTokenUseCase {
   ): Promise<LoadAccountByTokenResponseEntity> {
     const token = await this.decrypter.decrypt(entity.accessToken)
     if (token) {
-      await this.loadAccountByTokenRepository.loadByToken({
+      const id = await this.loadAccountByTokenRepository.loadByToken({
         accessToken: entity.accessToken
       })
+      if (id) {
+        return id
+      }
     }
     return null
   }
