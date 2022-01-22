@@ -103,5 +103,13 @@ describe('User Mongo Repository', () => {
         userId.insertedIds[0].getTimestamp()
       )
     })
+
+    test('Should return an empty list if there is no post', async () => {
+      const sut = makeSut()
+
+      const result = await sut.loadAll()
+      expect(result).toBeTruthy()
+      expect(result).toStrictEqual([])
+    })
   })
 })
