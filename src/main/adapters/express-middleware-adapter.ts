@@ -9,7 +9,7 @@ export const adaptMiddleware = (middleware: Middleware) => {
     }
     const httpResponse = await middleware.handle(request)
     if (httpResponse.statusCode === 200) {
-      Object.assign(req, { uid: req.uid })
+      Object.assign(req, httpResponse.body)
       next()
     } else {
       res
