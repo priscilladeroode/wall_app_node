@@ -4,16 +4,20 @@ import faker from 'faker'
 import { AddAccountRequestEntity } from '../../../domain/entities/users'
 import {
   AddAccountRequestModel,
-  AddAccountResponseModel
+  AddAccountResponseModel,
+  CheckAccountRequestModel,
+  CheckAccountResponseModel
 } from '../../models/users'
 import { AddAccountRepository } from '../../protocols/db/users/add-account-repository'
 import { SendWelcomeEmailRepository } from '../../protocols/services/send-welcome-email-repository'
+import { CheckAccountByEmailRepository } from '../../protocols/db/users/check-account-by-email-repository'
 
 interface SutTypes {
   sut: DBAddAccount
   hasherStub: Hasher
   addAccountRepositoryStub: AddAccountRepository
   sendEmailWelcomeEmailRepositoryStub: SendWelcomeEmailRepository
+  checkAccountByEmailRepositoryStub: CheckAccountByEmailRepository
 }
 
 const makeHasher = (): Hasher => {
@@ -40,6 +44,22 @@ const makeAddAccountRepository = (): AddAccountRepository => {
   return new AddAccountRepositoryStub()
 }
 
+const checkByEmailRequest: CheckAccountResponseModel = {
+  exists: false
+}
+
+const makeCheckAccountRepository = (): CheckAccountByEmailRepository => {
+  class CheckAccountByEmailRepositoryStub
+  implements CheckAccountByEmailRepository {
+    async checkByEmail (
+      data: CheckAccountRequestModel
+    ): Promise<CheckAccountResponseModel> {
+      return await Promise.resolve(checkByEmailRequest)
+    }
+  }
+  return new CheckAccountByEmailRepositoryStub()
+}
+
 const makeSendWelcomeEmailRepository = (): SendWelcomeEmailRepository => {
   class SendWelcomeEmailRepositoryStub implements SendWelcomeEmailRepository {
     async send (email: string, name: string): Promise<void> {
@@ -53,16 +73,19 @@ const makeSut = (): SutTypes => {
   const hasherStub = makeHasher()
   const sendEmailWelcomeEmailRepositoryStub = makeSendWelcomeEmailRepository()
   const addAccountRepositoryStub = makeAddAccountRepository()
+  const checkAccountByEmailRepositoryStub = makeCheckAccountRepository()
   const sut = new DBAddAccount(
     hasherStub,
     addAccountRepositoryStub,
-    sendEmailWelcomeEmailRepositoryStub
+    sendEmailWelcomeEmailRepositoryStub,
+    checkAccountByEmailRepositoryStub
   )
   return {
     sut,
     hasherStub,
     addAccountRepositoryStub,
-    sendEmailWelcomeEmailRepositoryStub
+    sendEmailWelcomeEmailRepositoryStub,
+    checkAccountByEmailRepositoryStub
   }
 }
 
@@ -132,6 +155,16 @@ describe('DBAddAccount Usecase', () => {
     const { sut, sendEmailWelcomeEmailRepositoryStub } = makeSut()
     jest
       .spyOn(sendEmailWelcomeEmailRepositoryStub, 'send')
+      .mockReturnValueOnce(Promise.reject(new Error()))
+    const accountData = mockAddAccountRequestEntity()
+    const promise = sut.add(accountData)
+    await expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if CheckAccountByEmailRepository throws', async () => {
+    const { sut, checkAccountByEmailRepositoryStub } = makeSut()
+    jest
+      .spyOn(checkAccountByEmailRepositoryStub, 'checkByEmail')
       .mockReturnValueOnce(Promise.reject(new Error()))
     const accountData = mockAddAccountRequestEntity()
     const promise = sut.add(accountData)
