@@ -21,14 +21,13 @@ describe('SignUp Routes', () => {
     await collection.deleteMany({})
   })
 
-  test('Should return a 201 on create post', async () => {
+  test('Should return a 403 on create post', async () => {
     await request(app)
       .post('/api/posts')
       .send({
         title: faker.lorem.sentence(),
-        content: faker.lorem.paragraphs(),
-        uid: faker.datatype.uuid()
+        content: faker.lorem.paragraphs()
       })
-      .expect(201)
+      .expect(403)
   })
 })
