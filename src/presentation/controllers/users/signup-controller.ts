@@ -1,4 +1,5 @@
 import { AddAccount } from '../../../domain/usecases/users'
+import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
 import { badRequest, serverError, ok } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
@@ -6,7 +7,8 @@ import { Validation } from '../../protocols/validation'
 export class SignUpController implements Controller {
   constructor (
     private readonly addAccount: AddAccount,
-    private readonly validation: Validation
+    private readonly validation: Validation,
+    private readonly authenticationUseCase: AuthenticationUseCase
   ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -27,6 +29,7 @@ export class SignUpController implements Controller {
         email,
         password
       })
+      await this.authenticationUseCase.auth({ email, password })
       return ok(account)
     } catch (error) {
       return serverError(error)
