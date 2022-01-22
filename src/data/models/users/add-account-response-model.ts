@@ -1,3 +1,3 @@
 export type AddAccountResponseModel = {
-  message: string
+  registered: boolean
 }

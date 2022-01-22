@@ -22,7 +22,7 @@ implements
     const collection = MongoHelper.getCollection('users')
     await collection.insertOne(accountData)
     const result: AddAccountResponseModel = {
-      message: 'User successfully registered'
+      registered: true
     }
     return result
   }
