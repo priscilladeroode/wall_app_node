@@ -225,4 +225,43 @@ describe('User Mongo Repository', () => {
       expect(result).toBeNull()
     })
   })
+
+  describe('checkById', () => {
+    test('Should return a post on success', async () => {
+      const sut = makeSut()
+      const user1 = {
+        name,
+        email,
+        password,
+        accessToken
+      }
+      const user2 = {
+        name: name2,
+        email: email2,
+        password: password2,
+        accessToken: accessToken2
+      }
+      const userId = await usersCollection.insertMany([user1, user2])
+      const id1 = userId.insertedIds[0].toHexString()
+      const id2 = userId.insertedIds[1].toHexString()
+
+      const post1 = {
+        title,
+        content,
+        uid: new ObjectId(id1)
+      }
+      const post2 = {
+        title: title2,
+        content: content2,
+        uid: new ObjectId(id2)
+      }
+      const inserted = await postsCollection.insertMany([post1, post2])
+      const result = await sut.checkById(inserted.insertedIds[0].toHexString())
+      expect(result).toBeTruthy()
+      expect(result.id).toBeTruthy()
+      expect(result.title).toBe(title)
+      expect(result.content).toBe(content)
+      expect(result.uid).toBeTruthy()
+    })
+  })
 })
