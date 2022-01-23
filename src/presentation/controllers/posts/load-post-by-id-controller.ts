@@ -4,7 +4,7 @@ import { badRequest, notFound, ok, serverError } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 
-export class LoadPostsByIdController implements Controller {
+export class LoadPostByIdController implements Controller {
   constructor (
     private readonly loadPostByIdUseCase: LoadPostByIdUseCase,
     private readonly validation: Validation
