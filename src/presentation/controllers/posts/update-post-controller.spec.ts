@@ -8,8 +8,20 @@ import { UpdatePostController } from './update-post-controller'
 
 import faker from 'faker'
 import { UpdatePostUseCase } from '../../../domain/usecases/posts/update-post-usecase'
-import { MissingParamError, ServerError } from '../../errors'
-import { badRequest, ok, serverError } from '../../helpers/http'
+import {
+  MissingParamError,
+  NotFoundError,
+  ServerError,
+  UnauthorizedError
+} from '../../errors'
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  ok,
+  serverError
+} from '../../helpers/http'
+import { ResultEnum } from '../../../domain/enums/result-enums'
 
 type SutTypes = {
   sut: UpdatePostController
@@ -124,6 +136,28 @@ describe('UpdatePostController', () => {
       const { sut } = makeSut()
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(ok(updatePostResponseEntity))
+    })
+
+    test('Shoud return 403 if post owner is not the same', async () => {
+      const { sut, updatePostUseCaseStub } = makeSut()
+      jest
+        .spyOn(updatePostUseCaseStub, 'update')
+        .mockImplementationOnce(async () => {
+          return await Promise.resolve(ResultEnum.forbidden)
+        })
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(forbidden(new UnauthorizedError()))
+    })
+
+    test('Shoud return 404 if post owner is not the same', async () => {
+      const { sut, updatePostUseCaseStub } = makeSut()
+      jest
+        .spyOn(updatePostUseCaseStub, 'update')
+        .mockImplementationOnce(async () => {
+          return await Promise.resolve(ResultEnum.notFound)
+        })
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(notFound(new NotFoundError(request.body.id)))
     })
   })
 })
