@@ -8,6 +8,7 @@ import { makeAuth } from '../factories/middlewares/auth-middleware'
 
 export default (router: Router): void => {
   router.get('/posts', adaptRoute(makeLoadAllPostsController()))
+  router.get('/posts/:id', adaptRoute(makeLoadAllPostsController()))
   router.get('/postsByUser/:userId', adaptRoute(makeLoadAllPostsController()))
   router.post(
     '/posts',
