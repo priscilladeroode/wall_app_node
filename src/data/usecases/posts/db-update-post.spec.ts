@@ -168,4 +168,10 @@ describe('DBUpdatePost', () => {
       await expect(promise).rejects.toThrow()
     })
   })
+
+  test('Should return a post on success', async () => {
+    const { sut } = makeSut()
+    const result = await sut.update(request)
+    expect(result).toEqual(loadPostByIdResponseModel)
+  })
 })
