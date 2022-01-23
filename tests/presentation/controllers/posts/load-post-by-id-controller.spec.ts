@@ -16,6 +16,7 @@ import {
 import { HttpRequest } from '@/presentation/protocols'
 import { Validation } from '@/presentation/protocols/validation'
 import { LoadPostByIdController } from '@/presentation/controllers/posts/load-post-by-id-controller'
+import { throwError } from '@/tests/domain/mocks'
 
 type SutTypes = {
   sut: LoadPostByIdController
@@ -63,10 +64,6 @@ const makeSut = (): SutTypes => {
     validationStub,
     loadPostsByIdUseCaseStub
   }
-}
-
-export const throwError = (): never => {
-  throw new Error()
 }
 
 describe('LoadPostsByIdController', () => {
