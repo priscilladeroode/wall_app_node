@@ -62,5 +62,14 @@ describe('DBLoadPostsByUid', () => {
       await sut.loadByUid(request)
       expect(loadByUidSpy).toHaveBeenCalledWith({ uid })
     })
+
+    test('Should throw if LoadPostsByUidRepository throws', async () => {
+      const { sut, loadPostsByUidRepositoryStub } = makeSut()
+      jest
+        .spyOn(loadPostsByUidRepositoryStub, 'loadByUid')
+        .mockReturnValueOnce(Promise.reject(new Error()))
+      const promise = sut.loadByUid(request)
+      await expect(promise).rejects.toThrow()
+    })
   })
 })
