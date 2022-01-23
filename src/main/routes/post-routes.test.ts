@@ -86,18 +86,15 @@ describe('Posts Routes', () => {
 
   describe('/PUT post', () => {
     test('Should return a 200 on update', async () => {
-      const postId = await postsCollection.insertOne({
-        title,
-        content,
-        uid
-      })
+      const postId = (
+        await postsCollection.insertOne({ title, content, uid })
+      ).insertedId.toHexString()
       await request(app)
-        .put('/api/posts/id')
+        .put(`/api/posts/${postId}`)
         .set('x-access-token', accessToken)
         .send({
           title: title2,
-          content: content2,
-          id: postId.insertedId.toHexString()
+          content: content2
         })
         .expect(200)
     })
