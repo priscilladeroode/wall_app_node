@@ -31,6 +31,10 @@ const loadPostsResponseEntity: LoadPostsResponseEntity = [
   postEntity
 ]
 
+export const throwError = (): never => {
+  throw new Error()
+}
+
 const makeLoadPostsByUidUseCaseStub = (): LoadPostsByUidUseCase => {
   class LoadPostsByUidUseCaseStub implements LoadPostsByUidUseCase {
     async loadByUid (): Promise<LoadPostsResponseEntity> {
@@ -107,6 +111,13 @@ describe('LoadPostsByUidController', () => {
       expect(httpResponse).toEqual(
         badRequest(new MissingParamError('any_field'))
       )
+    })
+
+    test('Shoud return 500 if Validation throws', async () => {
+      const { sut, validationStub } = makeSut()
+      jest.spyOn(validationStub, 'validate').mockImplementationOnce(throwError)
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
   })
 })
