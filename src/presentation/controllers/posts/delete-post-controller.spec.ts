@@ -3,8 +3,8 @@ import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-us
 import { Validation } from '../../protocols/validation'
 import { DeletePostController } from './delete-post-controller'
 import faker from 'faker'
-import { MissingParamError } from '../../errors'
-import { badRequest } from '../../helpers/http'
+import { MissingParamError, ServerError } from '../../errors'
+import { badRequest, serverError } from '../../helpers/http'
 type SutTypes = {
   sut: DeletePostController
   validationStub: Validation
@@ -50,6 +50,10 @@ const makeSut = (): SutTypes => {
   }
 }
 
+export const throwError = (): never => {
+  throw new Error()
+}
+
 describe('UpdatePostController', () => {
   describe('Validation', () => {
     test('Shoud call Validation with correct values', async () => {
@@ -68,6 +72,13 @@ describe('UpdatePostController', () => {
       expect(httpResponse).toEqual(
         badRequest(new MissingParamError(missingParam))
       )
+    })
+
+    test('Shoud return 500 if Validation throws', async () => {
+      const { sut, validationStub } = makeSut()
+      jest.spyOn(validationStub, 'validate').mockImplementationOnce(throwError)
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
   })
 })
