@@ -14,10 +14,17 @@ let usersCollection: Collection
 const password = faker.internet.password()
 const email = faker.internet.email()
 const name = faker.name.findName()
+let hashedPassword: string
+let id: string
+let accessToken: string
+
+const title = faker.lorem.sentence()
+const content = faker.lorem.paragraphs()
 
 describe('Posts Routes', () => {
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL)
+    hashedPassword = await hash(password, 12)
   })
 
   afterAll(async () => {
@@ -29,27 +36,13 @@ describe('Posts Routes', () => {
     await postsCollection.deleteMany({})
     usersCollection = MongoHelper.getCollection('users')
     await usersCollection.deleteMany({})
-  })
-
-  test('Should return a 403 on create post without accessToken', async () => {
-    await request(app)
-      .post('/api/posts')
-      .send({
-        title: faker.lorem.sentence(),
-        content: faker.lorem.paragraphs()
-      })
-      .expect(403)
-  })
-
-  test('Should return a 201 on create post', async () => {
-    const hashedPassword = await hash(password, 12)
     const result = await usersCollection.insertOne({
       name,
       email,
       password: hashedPassword
     })
-    const id = result.insertedId.toHexString()
-    const accessToken = sign({ id }, env.jwtSecret)
+    accessToken = sign({ id }, env.jwtSecret)
+    id = result.insertedId.toHexString()
     await usersCollection.updateOne(
       { _id: new ObjectId(id) },
       {
@@ -58,13 +51,32 @@ describe('Posts Routes', () => {
         }
       }
     )
-    await request(app)
-      .post('/api/posts')
-      .set('x-access-token', accessToken)
-      .send({
-        title: faker.lorem.sentence(),
-        content: faker.lorem.paragraphs()
-      })
-      .expect(201)
+  })
+
+  describe('/POST', () => {
+    test('Should return a 403 on create post without accessToken', async () => {
+      await request(app).post('/api/posts').send({ title, content }).expect(403)
+    })
+
+    test('Should return a 201 on create post', async () => {
+      await request(app)
+        .post('/api/posts')
+        .set('x-access-token', accessToken)
+        .send({
+          title: faker.lorem.sentence(),
+          content: faker.lorem.paragraphs()
+        })
+        .expect(201)
+    })
+  })
+
+  describe('/GET', () => {
+    test('Should return a 200 on load all post', async () => {
+      await postsCollection.insertOne({ title, content, uid: id })
+      await request(app)
+        .get('/api/posts')
+        .set('x-access-token', accessToken)
+        .expect(200)
+    })
   })
 })
