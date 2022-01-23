@@ -87,4 +87,17 @@ describe('LoadPostsByIdController', () => {
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
   })
+
+  describe('LoadPostsByIdUseCase', () => {
+    test('Shoud return 500 if LoadPostsByIdUseCase throws', async () => {
+      const { sut, loadPostsByIdUseCaseStub } = makeSut()
+      jest
+        .spyOn(loadPostsByIdUseCaseStub, 'loadById')
+        .mockImplementationOnce(async () => {
+          return await Promise.reject(new Error())
+        })
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(serverError(new ServerError(null)))
+    })
+  })
 })
