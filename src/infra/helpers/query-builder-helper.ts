@@ -24,6 +24,10 @@ export class QueryBuilder {
     return this.addStep('$project', data)
   }
 
+  match (data: object): QueryBuilder {
+    return this.addStep('$match', data)
+  }
+
   build (): object[] {
     return this.query
   }
