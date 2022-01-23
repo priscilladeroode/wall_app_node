@@ -1,5 +1,5 @@
-import { LoadPostsByUidController } from '../../../../presentation/controllers/posts/load-posts-by-uid-controller'
-import { Controller } from '../../../../presentation/protocols'
+import { LoadPostsByUidController } from '@/presentation/controllers/posts/load-posts-by-uid-controller'
+import { Controller } from '@/presentation/protocols'
 import { makeLogControllerDecorator } from '../../decorators/log-controller-decorator-factory'
 import { makeLoadPostsByUidUseCase } from '../../usecases/posts/load-posts-by-uid-usecase-factory'
 import { makeLoadPostsByUidValidation } from '../../validations/posts/load-posts-by-uid-validation-factory'

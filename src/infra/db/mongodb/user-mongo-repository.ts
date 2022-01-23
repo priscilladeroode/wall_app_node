@@ -8,13 +8,13 @@ import {
   LoadAccountByTokenResponseModel,
   LoadAccountRequestModel,
   LoadAccountResponseModel
-} from '../../../data/models/users'
-import { UpdateAccessTokenRequestModel } from '../../../data/models/users/update-access-token-request-model'
-import { AddAccountRepository } from '../../../data/protocols/db/users/add-account-repository'
-import { CheckAccountByEmailRepository } from '../../../data/protocols/db/users/check-account-by-email-repository'
-import { LoadAccountByEmailRepository } from '../../../data/protocols/db/users/load-account-by-email-repository'
-import { LoadAccountByTokenRepository } from '../../../data/protocols/db/users/load-account-by-token-repository'
-import { UpdateAccessTokenRepository } from '../../../data/protocols/db/users/update-access-token-repository'
+} from '@/data/models/users'
+import { UpdateAccessTokenRequestModel } from '@/data/models/users/update-access-token-request-model'
+import { AddAccountRepository } from '@/data/protocols/db/users/add-account-repository'
+import { CheckAccountByEmailRepository } from '@/data/protocols/db/users/check-account-by-email-repository'
+import { LoadAccountByEmailRepository } from '@/data/protocols/db/users/load-account-by-email-repository'
+import { LoadAccountByTokenRepository } from '@/data/protocols/db/users/load-account-by-token-repository'
+import { UpdateAccessTokenRepository } from '@/data/protocols/db/users/update-access-token-repository'
 import { MongoHelper } from '../../helpers/mongo-helper'
 
 export class UserMongoRepository

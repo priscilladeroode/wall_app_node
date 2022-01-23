@@ -1,4 +1,4 @@
-import { LoadPostsByUidUseCase } from '../../../domain/usecases/posts/load-posts-by-uid-usecase'
+import { LoadPostsByUidUseCase } from '@/domain/usecases/posts/load-posts-by-uid-usecase'
 import { badRequest, ok, serverError } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'

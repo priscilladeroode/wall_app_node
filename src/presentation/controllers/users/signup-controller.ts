@@ -1,5 +1,5 @@
-import { AddAccount } from '../../../domain/usecases/users'
-import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
+import { AddAccount } from '@/domain/usecases/users'
+import { AuthenticationUseCase } from '@/domain/usecases/users/authentication-usecase'
 import { EmailInUseError } from '../../errors'
 import { badRequest, serverError, ok, forbidden } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'

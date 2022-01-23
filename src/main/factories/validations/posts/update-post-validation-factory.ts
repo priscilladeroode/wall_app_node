@@ -1,10 +1,10 @@
-import { Validation } from '../../../../presentation/protocols/validation'
+import { Validation } from '@/presentation/protocols/validation'
 import {
   LengthFieldValidation,
   RequiredFieldValidation,
   TypeFieldValidation,
   ValidationComposite
-} from '../../../../validations/validators'
+} from '@/validations/validators'
 
 export const makeUpdatePostValidation = (): ValidationComposite => {
   const validations: Validation[] = []

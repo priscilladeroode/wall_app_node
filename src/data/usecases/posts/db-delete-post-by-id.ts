@@ -1,9 +1,9 @@
 import {
   DeletePostRequestEntity,
   DeletePostResponseEntity
-} from '../../../domain/entities/posts'
-import { ResultEnum } from '../../../domain/enums/result-enums'
-import { DeletePostByIdUseCase } from '../../../domain/usecases/posts/delete-post-by-id-usecase'
+} from '@/domain/entities/posts'
+import { ResultEnum } from '@/domain/enums/result-enums'
+import { DeletePostByIdUseCase } from '@/domain/usecases/posts/delete-post-by-id-usecase'
 import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
 import { DeletePostByIdRepository } from '../../protocols/db/posts/delete-post-repository'
 

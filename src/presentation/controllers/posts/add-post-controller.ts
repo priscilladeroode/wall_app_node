@@ -1,4 +1,4 @@
-import { AddPostUseCase } from '../../../domain/usecases/posts/add-post-usecase'
+import { AddPostUseCase } from '@/domain/usecases/posts/add-post-usecase'
 import { badRequest, created, serverError } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'

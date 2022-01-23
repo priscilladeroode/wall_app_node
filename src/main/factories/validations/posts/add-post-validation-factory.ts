@@ -1,8 +1,8 @@
-import { Validation } from '../../../../presentation/protocols/validation'
-import { TypeFieldValidation } from '../../../../validations/validators'
-import { LengthFieldValidation } from '../../../../validations/validators/length-field-validation'
-import { RequiredFieldValidation } from '../../../../validations/validators/required-field-validation'
-import { ValidationComposite } from '../../../../validations/validators/validation-composite'
+import { Validation } from '@/presentation/protocols/validation'
+import { TypeFieldValidation } from '@/validations/validators'
+import { LengthFieldValidation } from '@/validations/validators/length-field-validation'
+import { RequiredFieldValidation } from '@/validations/validators/required-field-validation'
+import { ValidationComposite } from '@/validations/validators/validation-composite'
 
 export const makeAddPostValidation = (): ValidationComposite => {
   const validations: Validation[] = []

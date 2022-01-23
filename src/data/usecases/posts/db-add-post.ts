@@ -1,8 +1,8 @@
 import {
   AddPostRequestEntity,
   AddPostResponseEntity
-} from '../../../domain/entities/posts'
-import { AddPostUseCase } from '../../../domain/usecases/posts/add-post-usecase'
+} from '@/domain/entities/posts'
+import { AddPostUseCase } from '@/domain/usecases/posts/add-post-usecase'
 import { AddPostRepository } from '../../protocols/db/posts/add-post-repository'
 
 export class DBAddPost implements AddPostUseCase {

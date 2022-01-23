@@ -1,5 +1,5 @@
-import { ResultEnum } from '../../../domain/enums/result-enums'
-import { DeletePostByIdUseCase } from '../../../domain/usecases/posts/delete-post-by-id-usecase'
+import { ResultEnum } from '@/domain/enums/result-enums'
+import { DeletePostByIdUseCase } from '@/domain/usecases/posts/delete-post-by-id-usecase'
 import { NotFoundError, UnauthorizedError } from '../../errors'
 import {
   badRequest,
