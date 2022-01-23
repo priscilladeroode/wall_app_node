@@ -1,8 +1,5 @@
-import {
-  UpdatePostRequestModel,
-  UpdatePostResponseModel
-} from '../../../models/posts'
+import { UpdatePostRequestModel } from '../../../models/posts'
 
 export interface UpdatePostRepository {
-  update: (post: UpdatePostRequestModel) => Promise<UpdatePostResponseModel>
+  update: (post: UpdatePostRequestModel) => Promise<void>
 }
