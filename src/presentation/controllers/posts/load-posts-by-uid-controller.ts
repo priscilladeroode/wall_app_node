@@ -7,8 +7,8 @@ export class LoadPostsByUidController implements Controller {
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const { uid } = httpRequest.body
-      const posts = await this.loadPostsByUidUseCase.loadByUid({ uid })
+      const { userId } = httpRequest.body
+      const posts = await this.loadPostsByUidUseCase.loadByUid({ uid: userId })
       return ok(posts)
     } catch (error) {
       return serverError(error)
