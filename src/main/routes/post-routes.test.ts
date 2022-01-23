@@ -71,6 +71,10 @@ describe('Posts Routes', () => {
   })
 
   describe('/GET', () => {
+    test('Should return a 403 on create post without accessToken', async () => {
+      await request(app).get('/api/posts').expect(403)
+    })
+
     test('Should return a 200 on load all post', async () => {
       await postsCollection.insertOne({ title, content, uid: id })
       await request(app)
