@@ -3,9 +3,11 @@ import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-us
 import { Validation } from '../../protocols/validation'
 import { DeletePostController } from './delete-post-controller'
 import faker from 'faker'
-import { MissingParamError, ServerError } from '../../errors'
-import { badRequest, ok, serverError } from '../../helpers/http'
+import { MissingParamError, NotFoundError, ServerError } from '../../errors'
+import { badRequest, notFound, ok, serverError } from '../../helpers/http'
 import { DeletePostRequestEntity } from '../../../domain/entities/posts'
+import { ResultEnum } from '../../../domain/enums/result-enums'
+
 type SutTypes = {
   sut: DeletePostController
   validationStub: Validation
@@ -17,10 +19,6 @@ const uid = faker.datatype.uuid()
 const missingParam = faker.datatype.string()
 
 const request = { body: { id, uid } }
-
-const deletePostResponseEntity: DeletePostResponseEntity = {
-  message: 'Post deleted succesfully'
-}
 
 const deletePostRequestEntity: DeletePostRequestEntity = { id, uid }
 
@@ -38,7 +36,7 @@ const makeDeletePostUseCase = (): DeletePostUseCase => {
     async delete (
       entity: DeletePostRequestEntity
     ): Promise<DeletePostResponseEntity> {
-      return await Promise.resolve(deletePostResponseEntity)
+      return await Promise.resolve(ResultEnum.success)
     }
   }
   return new DeletePostUseCaseStub()
@@ -110,6 +108,17 @@ describe('UpdatePostController', () => {
   test('Shoud return 200 if post is deleted', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.handle(request)
-    expect(httpResponse).toEqual(ok(deletePostResponseEntity))
+    expect(httpResponse).toEqual(ok({ message: 'Post deleted successfully' }))
+  })
+
+  test('Shoud return 401 if post cant be not found', async () => {
+    const { sut, deletePostUseCaseStub } = makeSut()
+    jest
+      .spyOn(deletePostUseCaseStub, 'delete')
+      .mockImplementationOnce(async () => {
+        return await Promise.resolve(ResultEnum.notFound)
+      })
+    const httpResponse = await sut.handle(request)
+    expect(httpResponse).toEqual(notFound(new NotFoundError(request.body.id)))
   })
 })
