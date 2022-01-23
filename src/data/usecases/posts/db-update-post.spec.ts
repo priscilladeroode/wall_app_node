@@ -26,6 +26,7 @@ const uid = faker.datatype.uuid()
 const id = faker.datatype.uuid()
 const createdBy = faker.name.findName()
 const createdAt = faker.datatype.datetime()
+const uidOtherUser = faker.datatype.uuid()
 
 const request: UpdatePostRequestEntity = {
   id,
@@ -48,7 +49,14 @@ const checkPostExistsResponseModel: CheckPostExistsResponseModel = {
   uid
 }
 
-const updatePostResponseModel: UpdatePostResponseModel = { id }
+const checkPostExistsResponseModelWithOtherUid: CheckPostExistsResponseModel = {
+  id,
+  title,
+  content,
+  uid: uidOtherUser
+}
+
+const updatePostResponseModel: UpdatePostResponseModel = id
 
 const loadPostByIdRequestModel: LoadPostByIdRequestModel = id
 
@@ -173,5 +181,25 @@ describe('DBUpdatePost', () => {
     const { sut } = makeSut()
     const result = await sut.update(request)
     expect(result).toEqual(loadPostByIdResponseModel)
+  })
+
+  test('Should return a not found if post dont exist', async () => {
+    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+    jest
+      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
+      .mockReturnValueOnce(Promise.resolve(null))
+    const result = await sut.update(request)
+    expect(result).toEqual({ error: 'not_found' })
+  })
+
+  test('Should return a forbidden if post dont belongs to the user', async () => {
+    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+    jest
+      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
+      .mockReturnValueOnce(
+        Promise.resolve(checkPostExistsResponseModelWithOtherUid)
+      )
+    const result = await sut.update(request)
+    expect(result).toEqual({ error: 'forbidden' })
   })
 })
