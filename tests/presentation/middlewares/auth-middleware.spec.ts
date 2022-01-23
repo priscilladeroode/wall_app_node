@@ -9,6 +9,7 @@ import { AccessDeniedError } from '@/presentation/errors'
 import { forbidden, ok, serverError } from '@/presentation/helpers/http'
 import { AuthMiddleware } from '@/presentation/middlewares/auth-middleware'
 import { HttpRequest } from '@/presentation/protocols'
+import { throwError } from '@/tests/domain/mocks'
 
 type SutTypes = {
   sut: AuthMiddleware
@@ -42,10 +43,6 @@ const makeSut = (): SutTypes => {
   const loadAccountByTokenStub = makeLoadAccountByToken()
   const sut = new AuthMiddleware(loadAccountByTokenStub)
   return { sut, loadAccountByTokenStub }
-}
-
-export const throwError = (): never => {
-  throw new Error()
 }
 
 describe('AuthMiddleware', () => {

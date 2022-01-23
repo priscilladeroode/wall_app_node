@@ -18,6 +18,7 @@ import {
 } from '@/presentation/helpers/http'
 import { DeletePostRequestEntity } from '@/domain/entities/posts'
 import { ResultEnum } from '@/domain/enums/result-enums'
+import { throwError } from '@/tests/domain/mocks'
 
 type SutTypes = {
   sut: DeletePostByIdController
@@ -65,10 +66,6 @@ const makeSut = (): SutTypes => {
     validationStub,
     deletePostUseCaseStub
   }
-}
-
-export const throwError = (): never => {
-  throw new Error()
 }
 
 describe('UpdatePostController', () => {

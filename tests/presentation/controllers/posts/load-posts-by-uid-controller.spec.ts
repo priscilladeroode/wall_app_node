@@ -6,6 +6,7 @@ import faker from 'faker'
 import { LoadPostsByUidController } from '@/presentation/controllers/posts/load-posts-by-uid-controller'
 import { LoadPostsByUidUseCase } from '@/domain/usecases/posts/load-posts-by-uid-usecase'
 import { Validation } from '@/presentation/protocols/validation'
+import { throwError } from '@/tests/domain/mocks'
 
 type SutTypes = {
   sut: LoadPostsByUidController
@@ -27,10 +28,6 @@ const loadPostsResponseEntity: LoadPostsResponseEntity = [
   postEntity,
   postEntity
 ]
-
-export const throwError = (): never => {
-  throw new Error()
-}
 
 const makeLoadPostsByUidUseCaseStub = (): LoadPostsByUidUseCase => {
   class LoadPostsByUidUseCaseStub implements LoadPostsByUidUseCase {
