@@ -34,6 +34,13 @@ const request: HttpRequest = {
   }
 }
 
+const updatePostRequestEntity: UpdatePostRequestEntity = {
+  id,
+  title,
+  content,
+  uid
+}
+
 const updatePostResponseEntityEntity: UpdatePostResponseEntity = {
   id,
   title,
@@ -91,6 +98,15 @@ describe('UpdatePostController', () => {
       expect(httpResponse).toEqual(
         badRequest(new MissingParamError(missingParam))
       )
+    })
+  })
+
+  describe('UpdatePostUseCase', () => {
+    test('Shoud call UpdatePostUseCase with correct values', async () => {
+      const { sut, updatePostUseCaseStub } = makeSut()
+      const updateSpy = jest.spyOn(updatePostUseCaseStub, 'update')
+      await sut.handle(request)
+      expect(updateSpy).toHaveBeenCalledWith(updatePostRequestEntity)
     })
   })
 })
