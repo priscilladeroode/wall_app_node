@@ -61,5 +61,14 @@ describe('DBUpdatePost', () => {
       await sut.update(request)
       expect(addSpy).toHaveBeenCalledWith(updatePostRequestModel)
     })
+
+    test('Should throw if UpdatePostRepository throws', async () => {
+      const { sut, updatePostRepositoryStub } = makeSut()
+      jest
+        .spyOn(updatePostRepositoryStub, 'update')
+        .mockReturnValueOnce(Promise.reject(new Error()))
+      const promise = sut.update(request)
+      await expect(promise).rejects.toThrow()
+    })
   })
 })
