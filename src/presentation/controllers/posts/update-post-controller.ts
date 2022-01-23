@@ -1,7 +1,15 @@
-import { badRequest, ok, serverError } from '../../helpers/http'
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  ok,
+  serverError
+} from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 import { UpdatePostUseCase } from '../../../domain/usecases/posts/update-post-usecase'
+import { ResultEnum } from '../../../domain/enums/result-enums'
+import { NotFoundError, UnauthorizedError } from '../../errors'
 
 export class UpdatePostController implements Controller {
   constructor (
@@ -17,7 +25,18 @@ export class UpdatePostController implements Controller {
       }
 
       const post = await this.updatePostUseCase.update(httpRequest.body)
-      return ok(post)
+      console.log(post)
+      switch (post) {
+        case ResultEnum.forbidden: {
+          return forbidden(new UnauthorizedError())
+        }
+        case ResultEnum.notFound: {
+          return notFound(new NotFoundError(httpRequest.body.id))
+        }
+        default: {
+          return ok(post)
+        }
+      }
     } catch (error) {
       return serverError(error)
     }

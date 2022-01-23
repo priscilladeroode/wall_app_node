@@ -1,3 +1,4 @@
 import { PostEntity } from '.'
+import { ResultEnum } from '../../enums/result-enums'
 
-export type UpdatePostResponseEntity = PostEntity | { error: string }
+export type UpdatePostResponseEntity = PostEntity | ResultEnum

@@ -11,6 +11,7 @@ import { UpdatePostRepository } from '../../protocols/db/posts/update-post-repos
 import { DBUpdatePost } from './db-update-post'
 import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
 import { LoadPostByIdRepository } from '../../protocols/db/posts/load-post-by-id-respository'
+import { ResultEnum } from '../../../domain/enums/result-enums'
 
 interface SutTypes {
   sut: DBUpdatePost
@@ -184,7 +185,7 @@ describe('DBUpdatePost', () => {
       .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
       .mockReturnValueOnce(Promise.resolve(null))
     const result = await sut.update(request)
-    expect(result).toEqual({ error: 'not_found' })
+    expect(result).toEqual(ResultEnum.notFound)
   })
 
   test('Should return a forbidden if post dont belongs to the user', async () => {
@@ -195,6 +196,6 @@ describe('DBUpdatePost', () => {
         Promise.resolve(checkPostExistsResponseModelWithOtherUid)
       )
     const result = await sut.update(request)
-    expect(result).toEqual({ error: 'forbidden' })
+    expect(result).toEqual(ResultEnum.forbidden)
   })
 })
