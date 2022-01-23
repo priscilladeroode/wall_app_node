@@ -1,6 +1,9 @@
 import { Validation } from '../../../../presentation/protocols/validation'
-import { RequiredFieldValidation } from '../../../../validations/validators/required-field-validation'
-import { ValidationComposite } from '../../../../validations/validators/validation-composite'
+import {
+  TypeFieldValidation,
+  RequiredFieldValidation,
+  ValidationComposite
+} from '../../../../validations/validators'
 import { makeLoadPostByIdValidation } from './load-post-by-id-factory'
 
 jest.mock('../../../../validations/validators/validation-composite')
@@ -12,6 +15,7 @@ describe('LoadPostByIdValidation Factory', () => {
 
     for (const field of ['id']) {
       validations.push(new RequiredFieldValidation(field))
+      validations.push(new TypeFieldValidation(field, 'string'))
     }
     expect(ValidationComposite).toHaveBeenCalledWith(validations)
   })
