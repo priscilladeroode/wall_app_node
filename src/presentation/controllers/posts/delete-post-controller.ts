@@ -1,5 +1,5 @@
 import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-usecase'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, ok, serverError } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 
@@ -15,7 +15,10 @@ export class DeletePostController implements Controller {
       if (error) {
         return badRequest(error)
       }
-      return null
+
+      const { uid, id } = httpRequest.body
+      const post = await this.deletePostUseCase.delete({ id, uid })
+      return ok(post)
     } catch (error) {
       return serverError(error)
     }
