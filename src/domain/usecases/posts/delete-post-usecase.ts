@@ -1,5 +1,8 @@
-import { DeletePostResponseEntity } from '../../entities/posts/delete-post-response-entity'
+import {
+  DeletePostRequestEntity,
+  DeletePostResponseEntity
+} from '../../entities/posts'
 
 export interface DeletePostUseCase {
-  delete: (postId: string) => Promise<DeletePostResponseEntity>
+  delete: (entity: DeletePostRequestEntity) => Promise<DeletePostResponseEntity>
 }
