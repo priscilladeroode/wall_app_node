@@ -1,5 +1,6 @@
 import { Validation } from '../../../../presentation/protocols/validation'
 import { EmailValidator } from '../../../../validations/protocols/email-validator'
+import { CompleteNameFieldValidation } from '../../../../validations/validators'
 import { CompareFieldsValidation } from '../../../../validations/validators/compare-fields-validation'
 import { EmailValidation } from '../../../../validations/validators/email-validation'
 import { RequiredFieldValidation } from '../../../../validations/validators/required-field-validation'
@@ -28,6 +29,7 @@ describe('SignUpValidation Factory', () => {
     validations.push(
       new CompareFieldsValidation('password', 'passwordConfirmation')
     )
+    validations.push(new CompleteNameFieldValidation('name'))
 
     validations.push(new EmailValidation('email', makeEmailValidator()))
     expect(ValidationComposite).toHaveBeenCalledWith(validations)
