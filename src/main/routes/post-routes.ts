@@ -11,6 +11,11 @@ export default (router: Router): void => {
     adaptMiddleware(makeAuth()),
     adaptRoute(makeAddPostController())
   )
+  router.put(
+    '/posts/:id',
+    adaptMiddleware(makeAuth()),
+    adaptRoute(makeLoadAllPostsController())
+  )
   router.get('/posts', adaptRoute(makeLoadAllPostsController()))
   router.get('/postsByUser/:userId', adaptRoute(makeLoadAllPostsController()))
 }
