@@ -2,8 +2,8 @@ import faker from 'faker'
 
 import { PostEntity } from '../../../domain/entities/posts'
 import { LoadPostsByIdUseCase } from '../../../domain/usecases/posts/load-post-by-id-usecase'
-import { MissingParamError } from '../../errors'
-import { badRequest } from '../../helpers/http'
+import { MissingParamError, ServerError } from '../../errors'
+import { badRequest, serverError } from '../../helpers/http'
 import { HttpRequest } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 import { LoadPostsByIdController } from './load-post-by-id-controller'
@@ -78,6 +78,13 @@ describe('LoadPostsByIdController', () => {
       expect(httpResponse).toEqual(
         badRequest(new MissingParamError('any_field'))
       )
+    })
+
+    test('Shoud return 500 if Validation throws', async () => {
+      const { sut, validationStub } = makeSut()
+      jest.spyOn(validationStub, 'validate').mockImplementationOnce(throwError)
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
   })
 })
