@@ -62,4 +62,19 @@ describe('DBLoadPostById', () => {
       await expect(promise).rejects.toThrow()
     })
   })
+
+  test('Should return a list a post on success', async () => {
+    const { sut } = makeSut()
+    const result = await sut.loadById(request)
+    expect(result).toEqual(post)
+  })
+
+  test('Should return null if there is no post', async () => {
+    const { sut, loadPostsByIdRepositoryStub } = makeSut()
+    jest
+      .spyOn(loadPostsByIdRepositoryStub, 'loadById')
+      .mockReturnValueOnce(Promise.resolve(null))
+    const result = await sut.loadById(request)
+    expect(result).toBeNull()
+  })
 })
