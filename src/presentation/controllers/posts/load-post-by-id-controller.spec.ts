@@ -2,8 +2,8 @@ import faker from 'faker'
 
 import { PostEntity } from '../../../domain/entities/posts'
 import { LoadPostsByIdUseCase } from '../../../domain/usecases/posts/load-post-by-id-usecase'
-import { MissingParamError, ServerError } from '../../errors'
-import { badRequest, ok, serverError } from '../../helpers/http'
+import { MissingParamError, NotFoundError, ServerError } from '../../errors'
+import { badRequest, notFound, ok, serverError } from '../../helpers/http'
 import { HttpRequest } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 import { LoadPostsByIdController } from './load-post-by-id-controller'
@@ -112,5 +112,16 @@ describe('LoadPostsByIdController', () => {
     const { sut } = makeSut()
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(ok(postEntity))
+  })
+
+  test('Shoud return 404 if LoadPostsByIdUseCase return null', async () => {
+    const { sut, loadPostsByIdUseCaseStub } = makeSut()
+    jest
+      .spyOn(loadPostsByIdUseCaseStub, 'loadById')
+      .mockImplementationOnce(async () => {
+        return await Promise.resolve(null)
+      })
+    const httpResponse = await sut.handle(request)
+    expect(httpResponse).toEqual(notFound(new NotFoundError(request.body.id)))
   })
 })
