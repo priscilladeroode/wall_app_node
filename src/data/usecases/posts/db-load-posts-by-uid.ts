@@ -1,8 +1,8 @@
 import {
   LoadPostsByUidRequestEntity,
   LoadPostsResponseEntity
-} from '../../../domain/entities/posts'
-import { LoadPostsByUidUseCase } from '../../../domain/usecases/posts/load-posts-by-uid-usecase'
+} from '@/domain/entities/posts'
+import { LoadPostsByUidUseCase } from '@/domain/usecases/posts/load-posts-by-uid-usecase'
 import { LoadPostsByUidRepository } from '../../protocols/db/posts/load-posts-by-uid-repository'
 
 export class DBLoadPostsByUid implements LoadPostsByUidUseCase {

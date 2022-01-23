@@ -1,7 +1,7 @@
-import { Validation } from '../../../../presentation/protocols/validation'
-import { TypeFieldValidation } from '../../../../validations/validators'
-import { RequiredFieldValidation } from '../../../../validations/validators/required-field-validation'
-import { ValidationComposite } from '../../../../validations/validators/validation-composite'
+import { Validation } from '@/presentation/protocols/validation'
+import { TypeFieldValidation } from '@/validations/validators'
+import { RequiredFieldValidation } from '@/validations/validators/required-field-validation'
+import { ValidationComposite } from '@/validations/validators/validation-composite'
 
 export const makeDeletePostByIdValidation = (): ValidationComposite => {
   const validations: Validation[] = []

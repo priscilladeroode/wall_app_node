@@ -1,5 +1,5 @@
-import { ParamLengthError } from '../../presentation/errors/param-length-error'
-import { Validation } from '../../presentation/protocols/validation'
+import { ParamLengthError } from '@/presentation/errors/param-length-error'
+import { Validation } from '@/presentation/protocols/validation'
 
 export class LengthFieldValidation implements Validation {
   constructor (

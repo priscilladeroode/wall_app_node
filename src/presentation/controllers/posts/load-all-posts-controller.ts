@@ -1,4 +1,4 @@
-import { LoadAllPostsUseCase } from '../../../domain/usecases/posts/load-all-posts-usecase'
+import { LoadAllPostsUseCase } from '@/domain/usecases/posts/load-all-posts-usecase'
 import { ok, serverError } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 

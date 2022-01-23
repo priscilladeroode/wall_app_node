@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { SendWelcomeEmailRepository } from '../../data/protocols/services/send-welcome-email-repository'
-import env from '../../main/config/env'
+import env from '@/main/config/env'
 
 const headers = {
   Authorization: `Bearer ${env.sendGrid}`,

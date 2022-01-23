@@ -1,8 +1,8 @@
 import {
   AddAccountRequestEntity,
   AddAccountResponseEntity
-} from '../../../domain/entities/users'
-import { AddAccount } from '../../../domain/usecases/users'
+} from '@/domain/entities/users'
+import { AddAccount } from '@/domain/usecases/users'
 import { Hasher } from '../../protocols/cryptography/hasher'
 import { AddAccountRepository } from '../../protocols/db/users/add-account-repository'
 import { CheckAccountByEmailRepository } from '../../protocols/db/users/check-account-by-email-repository'

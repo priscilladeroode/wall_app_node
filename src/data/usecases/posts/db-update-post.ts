@@ -1,9 +1,9 @@
 import {
   UpdatePostRequestEntity,
   UpdatePostResponseEntity
-} from '../../../domain/entities/posts'
-import { ResultEnum } from '../../../domain/enums/result-enums'
-import { UpdatePostUseCase } from '../../../domain/usecases/posts/update-post-usecase'
+} from '@/domain/entities/posts'
+import { ResultEnum } from '@/domain/enums/result-enums'
+import { UpdatePostUseCase } from '@/domain/usecases/posts/update-post-usecase'
 import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
 import { LoadPostByIdRepository } from '../../protocols/db/posts/load-post-by-id-respository'
 import { UpdatePostRepository } from '../../protocols/db/posts/update-post-repository'

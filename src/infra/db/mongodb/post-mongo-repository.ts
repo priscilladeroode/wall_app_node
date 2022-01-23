@@ -7,14 +7,14 @@ import {
   LoadPostsResponseModel,
   PostModel,
   UpdatePostRequestModel
-} from '../../../data/models/posts'
-import { AddPostRepository } from '../../../data/protocols/db/posts/add-post-repository'
-import { CheckPostExistsByIdRepository } from '../../../data/protocols/db/posts/check-post-exists-by-id'
-import { DeletePostByIdRepository } from '../../../data/protocols/db/posts/delete-post-repository'
-import { LoadAllPostsRepository } from '../../../data/protocols/db/posts/load-all-posts-repository'
-import { LoadPostByIdRepository } from '../../../data/protocols/db/posts/load-post-by-id-respository'
-import { LoadPostsByUidRepository } from '../../../data/protocols/db/posts/load-posts-by-uid-repository'
-import { UpdatePostRepository } from '../../../data/protocols/db/posts/update-post-repository'
+} from '@/data/models/posts'
+import { AddPostRepository } from '@/data/protocols/db/posts/add-post-repository'
+import { CheckPostExistsByIdRepository } from '@/data/protocols/db/posts/check-post-exists-by-id'
+import { DeletePostByIdRepository } from '@/data/protocols/db/posts/delete-post-repository'
+import { LoadAllPostsRepository } from '@/data/protocols/db/posts/load-all-posts-repository'
+import { LoadPostByIdRepository } from '@/data/protocols/db/posts/load-post-by-id-respository'
+import { LoadPostsByUidRepository } from '@/data/protocols/db/posts/load-posts-by-uid-repository'
+import { UpdatePostRepository } from '@/data/protocols/db/posts/update-post-repository'
 import { MongoHelper } from '../../helpers/mongo-helper'
 import { QueryBuilder } from '../../helpers/query-builder-helper'
 

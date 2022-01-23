@@ -1,8 +1,8 @@
 import {
   AuthenticationRequestEntity,
   AuthenticationResponseEntity
-} from '../../../domain/entities/users'
-import { AuthenticationUseCase } from '../../../domain/usecases/users/authentication-usecase'
+} from '@/domain/entities/users'
+import { AuthenticationUseCase } from '@/domain/usecases/users/authentication-usecase'
 import { HashComparer } from '../../protocols/cryptography/hash-comparer'
 import { Encrypter } from '../../protocols/cryptography/encrypter'
 import { LoadAccountByEmailRepository } from '../../protocols/db/users/load-account-by-email-repository'

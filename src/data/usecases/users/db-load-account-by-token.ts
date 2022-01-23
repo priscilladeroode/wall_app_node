@@ -1,8 +1,8 @@
 import {
   LoadAccountByTokenRequestEntity,
   LoadAccountByTokenResponseEntity
-} from '../../../domain/entities/users'
-import { LoadAccountByTokenUseCase } from '../../../domain/usecases/users/load-account-by-token-usecase'
+} from '@/domain/entities/users'
+import { LoadAccountByTokenUseCase } from '@/domain/usecases/users/load-account-by-token-usecase'
 import { Decrypter } from '../../protocols/cryptography/decrypter'
 import { LoadAccountByTokenRepository } from '../../protocols/db/users/load-account-by-token-repository'
 

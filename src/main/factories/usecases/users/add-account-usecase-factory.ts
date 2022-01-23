@@ -1,8 +1,8 @@
-import { DBAddAccount } from '../../../../data/usecases/users/db-add-account'
-import { AddAccount } from '../../../../domain/usecases/users'
-import { BcryptAdapter } from '../../../../infra/cryptography/bcrypt-adapter'
-import { UserMongoRepository } from '../../../../infra/db/mongodb/user-mongo-repository'
-import { SendGridEmailRepository } from '../../../../infra/services/send-grid-email-repository'
+import { DBAddAccount } from '@/data/usecases/users/db-add-account'
+import { AddAccount } from '@/domain/usecases/users'
+import { BcryptAdapter } from '@/infra/cryptography/bcrypt-adapter'
+import { UserMongoRepository } from '@/infra/db/mongodb/user-mongo-repository'
+import { SendGridEmailRepository } from '@/infra/services/send-grid-email-repository'
 
 export const makeAddAccountUseCase = (): AddAccount => {
   const salt = 12

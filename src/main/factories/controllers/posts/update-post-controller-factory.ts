@@ -1,5 +1,5 @@
-import { UpdatePostController } from '../../../../presentation/controllers/posts/update-post-controller'
-import { Controller } from '../../../../presentation/protocols'
+import { UpdatePostController } from '@/presentation/controllers/posts/update-post-controller'
+import { Controller } from '@/presentation/protocols'
 import { makeLogControllerDecorator } from '../../decorators/log-controller-decorator-factory'
 import { makeUpdatePostUseCase } from '../../usecases/posts/update-post-usecase-factory'
 import { makeUpdatePostValidation } from '../../validations/posts/update-post-validation-factory'

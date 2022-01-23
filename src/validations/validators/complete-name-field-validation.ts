@@ -1,6 +1,6 @@
 import validator from 'validator'
-import { InvalidParamError } from '../../presentation/errors'
-import { Validation } from '../../presentation/protocols/validation'
+import { InvalidParamError } from '@/presentation/errors'
+import { Validation } from '@/presentation/protocols/validation'
 
 export class CompleteNameFieldValidation implements Validation {
   constructor (private readonly fieldName: string) {}

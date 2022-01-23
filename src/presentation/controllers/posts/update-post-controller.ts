@@ -7,8 +7,8 @@ import {
 } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
-import { UpdatePostUseCase } from '../../../domain/usecases/posts/update-post-usecase'
-import { ResultEnum } from '../../../domain/enums/result-enums'
+import { UpdatePostUseCase } from '@/domain/usecases/posts/update-post-usecase'
+import { ResultEnum } from '@/domain/enums/result-enums'
 import { NotFoundError, UnauthorizedError } from '../../errors'
 
 export class UpdatePostController implements Controller {
