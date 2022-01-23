@@ -115,12 +115,7 @@ describe('User Mongo Repository', () => {
   describe('loadByUid', () => {
     test('Should return a list of posts of the user on descending order on success', async () => {
       const sut = makeSut()
-      const user1 = {
-        name,
-        email,
-        password,
-        accessToken
-      }
+      const user1 = { name, email, password, accessToken }
       const user2 = {
         name: name2,
         email: email2,
@@ -129,17 +124,12 @@ describe('User Mongo Repository', () => {
       }
       const userId = await usersCollection.insertMany([user1, user2])
       const id1 = userId.insertedIds[0].toHexString()
-      const id2 = userId.insertedIds[1].toHexString()
 
-      const post1 = {
-        title,
-        content,
-        uid: new ObjectId(id1)
-      }
+      const post1 = { title, content, uid: userId.insertedIds[0] }
       const post2 = {
         title: title2,
         content: content2,
-        uid: new ObjectId(id2)
+        uid: userId.insertedIds[1]
       }
       await postsCollection.insertMany([post1, post2])
 
@@ -156,15 +146,10 @@ describe('User Mongo Repository', () => {
     })
     test('Should return an empty list if there is no post', async () => {
       const sut = makeSut()
-      const user1 = {
-        name,
-        email,
-        password,
-        accessToken
-      }
-      const userId = await usersCollection.insertOne(user1)
-      const id1 = userId.insertedId.toHexString()
-      const result = await sut.loadByUid({ uid: id1 })
+      const user = { name, email, password, accessToken }
+      const userId = await usersCollection.insertOne(user)
+      const uid = userId.insertedId.toHexString()
+      const result = await sut.loadByUid({ uid })
       expect(result).toBeTruthy()
       expect(result).toStrictEqual([])
     })
@@ -173,54 +158,24 @@ describe('User Mongo Repository', () => {
   describe('loadById', () => {
     test('Should return a post on success', async () => {
       const sut = makeSut()
-      const user1 = {
-        name,
-        email,
-        password,
-        accessToken
-      }
-      const user2 = {
-        name: name2,
-        email: email2,
-        password: password2,
-        accessToken: accessToken2
-      }
-      const userId = await usersCollection.insertMany([user1, user2])
-      const id1 = userId.insertedIds[0].toHexString()
-      const id2 = userId.insertedIds[1].toHexString()
-
-      const post1 = {
-        title,
-        content,
-        uid: new ObjectId(id1)
-      }
-      const post2 = {
-        title: title2,
-        content: content2,
-        uid: new ObjectId(id2)
-      }
-      const inserted = await postsCollection.insertMany([post1, post2])
-      const result = await sut.loadById(inserted.insertedIds[0].toHexString())
+      const user = { name, email, password, accessToken }
+      const userId = await usersCollection.insertOne(user)
+      const post = { title, content, uid: userId.insertedId }
+      const inserted = await postsCollection.insertOne(post)
+      const result = await sut.loadById(inserted.insertedId.toHexString())
       expect(result).toBeTruthy()
       expect(result.id).toBeTruthy()
       expect(result.title).toBe(title)
       expect(result.content).toBe(content)
       expect(result.createdBy).toBe(name)
-      expect(result.createdAt).toStrictEqual(
-        userId.insertedIds[0].getTimestamp()
-      )
+      expect(result.createdAt).toStrictEqual(userId.insertedId.getTimestamp())
     })
 
     test('Should return null if there is no post', async () => {
       const sut = makeSut()
-      const user1 = {
-        name,
-        email,
-        password,
-        accessToken
-      }
-      const userId = await usersCollection.insertOne(user1)
-      const id1 = userId.insertedId.toHexString()
+      const user = { name, email, password, accessToken }
+      const userInserted = await usersCollection.insertOne(user)
+      const id1 = userInserted.insertedId.toHexString()
       const result = await sut.loadById(id1)
       expect(result).toBeNull()
     })
@@ -229,39 +184,30 @@ describe('User Mongo Repository', () => {
   describe('checkById', () => {
     test('Should return a post on success', async () => {
       const sut = makeSut()
-      const user1 = {
-        name,
-        email,
-        password,
-        accessToken
-      }
-      const user2 = {
-        name: name2,
-        email: email2,
-        password: password2,
-        accessToken: accessToken2
-      }
-      const userId = await usersCollection.insertMany([user1, user2])
-      const id1 = userId.insertedIds[0].toHexString()
-      const id2 = userId.insertedIds[1].toHexString()
-
-      const post1 = {
-        title,
-        content,
-        uid: new ObjectId(id1)
-      }
-      const post2 = {
-        title: title2,
-        content: content2,
-        uid: new ObjectId(id2)
-      }
-      const inserted = await postsCollection.insertMany([post1, post2])
-      const result = await sut.checkById(inserted.insertedIds[0].toHexString())
+      const user = { name, email, password, accessToken }
+      const userId = await usersCollection.insertOne(user)
+      const post = { title, content, uid: userId.insertedId }
+      const inserted = await postsCollection.insertOne(post)
+      const result = await sut.checkById(inserted.insertedId.toHexString())
       expect(result).toBeTruthy()
       expect(result.id).toBeTruthy()
       expect(result.title).toBe(title)
       expect(result.content).toBe(content)
       expect(result.uid).toBeTruthy()
+    })
+
+    test('Should return null if there is no post', async () => {
+      const sut = makeSut()
+      const user = { name, email, password, accessToken }
+      const userInserted = await usersCollection.insertOne(user)
+      const post = { title, content, uid: userInserted.insertedId }
+      const inserted = await postsCollection.insertOne(post)
+
+      const id1 = inserted.insertedId.toHexString()
+
+      await postsCollection.deleteOne(post)
+      const result = await sut.checkById(id1)
+      expect(result).toBeNull()
     })
   })
 })
