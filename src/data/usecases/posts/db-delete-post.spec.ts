@@ -1,13 +1,11 @@
+import faker from 'faker'
+
 import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
 import { DBDeletePost } from './db-delete-post'
-
-import faker from 'faker'
 import { CheckPostExistsResponseModel } from '../../models/posts'
-import {
-  DeletePostRequestEntity,
-  DeletePostResponseEntity
-} from '../../../domain/entities/posts'
+import { DeletePostRequestEntity } from '../../../domain/entities/posts'
 import { DeletePostByIdRepository } from '../../protocols/db/posts/delete-post-repository'
+import { ResultEnum } from '../../../domain/enums/result-enums'
 
 interface SutTypes {
   sut: DBDeletePost
@@ -22,10 +20,6 @@ const id = faker.datatype.uuid()
 const uidOtherUser = faker.datatype.uuid()
 
 const request: DeletePostRequestEntity = { id, uid }
-
-const responseMessage: DeletePostResponseEntity = {
-  message: 'Post deleted succesfully'
-}
 
 const checkPostExistsResponseModel: CheckPostExistsResponseModel = {
   id,
@@ -116,7 +110,7 @@ describe('DBDeletePost', () => {
   test('Should return a message on success', async () => {
     const { sut } = makeSut()
     const result = await sut.delete(request)
-    expect(result).toEqual(responseMessage)
+    expect(result).toEqual(ResultEnum.success)
   })
 
   test('Should return a not found if post dont exist', async () => {
@@ -125,7 +119,7 @@ describe('DBDeletePost', () => {
       .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
       .mockReturnValueOnce(Promise.resolve(null))
     const result = await sut.delete(request)
-    expect(result).toEqual({ error: 'not_found' })
+    expect(result).toEqual(ResultEnum.notFound)
   })
 
   test('Should return a forbidden if post dont belongs to the user', async () => {
@@ -136,6 +130,6 @@ describe('DBDeletePost', () => {
         Promise.resolve(checkPostExistsResponseModelWithOtherUid)
       )
     const result = await sut.delete(request)
-    expect(result).toEqual({ error: 'forbidden' })
+    expect(result).toEqual(ResultEnum.forbidden)
   })
 })
