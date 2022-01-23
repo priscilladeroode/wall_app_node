@@ -4,10 +4,12 @@ import { DBDeletePost } from './db-delete-post'
 import faker from 'faker'
 import { CheckPostExistsResponseModel } from '../../models/posts'
 import { DeletePostRequestEntity } from '../../../domain/entities/posts'
+import { DeletePostByIdRepository } from '../../protocols/db/posts/delete-post-repository'
 
 interface SutTypes {
   sut: DBDeletePost
   checkPostExistsByIdRepositoryStub: CheckPostExistsByIdRepository
+  deletePostByIdRepository: DeletePostByIdRepository
 }
 
 const title = faker.lorem.sentence()
@@ -34,13 +36,26 @@ const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
   return new CheckPostExistsByIdRepositoryStub()
 }
 
+const makeDeletePostByIdRepository = (): DeletePostByIdRepository => {
+  class DeletePostByIdRepositoryStub implements DeletePostByIdRepository {
+    async deleteById (id: string): Promise<void> {
+      return await Promise.resolve()
+    }
+  }
+  return new DeletePostByIdRepositoryStub()
+}
+
 const makeSut = (): SutTypes => {
   const checkPostExistsByIdRepositoryStub = makeCheckPostExistsByIdRepository()
-
-  const sut = new DBDeletePost(checkPostExistsByIdRepositoryStub)
+  const deletePostByIdRepository = makeDeletePostByIdRepository()
+  const sut = new DBDeletePost(
+    checkPostExistsByIdRepositoryStub,
+    deletePostByIdRepository
+  )
   return {
     sut,
-    checkPostExistsByIdRepositoryStub
+    checkPostExistsByIdRepositoryStub,
+    deletePostByIdRepository
   }
 }
 
@@ -63,6 +78,14 @@ describe('DBDeletePost', () => {
         .mockReturnValueOnce(Promise.reject(new Error()))
       const promise = sut.delete(request)
       await expect(promise).rejects.toThrow()
+    })
+  })
+  describe('DeletePostByIdRepository', () => {
+    test('Should call DeletePostByIdRepository with correct values', async () => {
+      const { sut, deletePostByIdRepository } = makeSut()
+      const checkByIdSpy = jest.spyOn(deletePostByIdRepository, 'deleteById')
+      await sut.delete(request)
+      expect(checkByIdSpy).toHaveBeenCalledWith(request.id)
     })
   })
 })
