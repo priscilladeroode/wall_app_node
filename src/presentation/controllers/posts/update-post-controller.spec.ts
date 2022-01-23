@@ -9,7 +9,7 @@ import { UpdatePostController } from './update-post-controller'
 import faker from 'faker'
 import { UpdatePostUseCase } from '../../../domain/usecases/posts/update-post-usecase'
 import { MissingParamError, ServerError } from '../../errors'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, ok, serverError } from '../../helpers/http'
 
 type SutTypes = {
   sut: UpdatePostController
@@ -41,7 +41,7 @@ const updatePostRequestEntity: UpdatePostRequestEntity = {
   uid
 }
 
-const updatePostResponseEntityEntity: UpdatePostResponseEntity = {
+const updatePostResponseEntity: UpdatePostResponseEntity = {
   id,
   title,
   content,
@@ -63,7 +63,7 @@ const makeUpdatePostUseCase = (): UpdatePostUseCase => {
     async update (
       post: UpdatePostRequestEntity
     ): Promise<UpdatePostResponseEntity> {
-      return await Promise.resolve(updatePostResponseEntityEntity)
+      return await Promise.resolve(updatePostResponseEntity)
     }
   }
   return new UpdatePostUseCaseStub()
@@ -118,6 +118,12 @@ describe('UpdatePostController', () => {
         })
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
+    })
+
+    test('Shoud return 200 if post is update', async () => {
+      const { sut } = makeSut()
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(ok(updatePostResponseEntity))
     })
   })
 })
