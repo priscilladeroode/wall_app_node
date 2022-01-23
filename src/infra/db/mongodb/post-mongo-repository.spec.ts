@@ -106,7 +106,6 @@ describe('User Mongo Repository', () => {
 
     test('Should return an empty list if there is no post', async () => {
       const sut = makeSut()
-
       const result = await sut.loadAll()
       expect(result).toBeTruthy()
       expect(result).toStrictEqual([])
@@ -154,6 +153,20 @@ describe('User Mongo Repository', () => {
       expect(result[0].createdAt).toStrictEqual(
         userId.insertedIds[0].getTimestamp()
       )
+    })
+    test('Should return an empty list if there is no post', async () => {
+      const sut = makeSut()
+      const user1 = {
+        name,
+        email,
+        password,
+        accessToken
+      }
+      const userId = await usersCollection.insertOne(user1)
+      const id1 = userId.insertedId.toHexString()
+      const result = await sut.loadByUid({ uid: id1 })
+      expect(result).toBeTruthy()
+      expect(result).toStrictEqual([])
     })
   })
 })
