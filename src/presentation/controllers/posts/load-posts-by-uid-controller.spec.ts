@@ -68,7 +68,7 @@ const makeSut = (): SutTypes => {
 }
 
 describe('LoadPostsByUidController', () => {
-  describe('', () => {
+  describe('LoadPostsByUidUseCase', () => {
     test('Shoud return 500 if LoadPostsByUidUseCase throws', async () => {
       const { sut, loadPostsByUidUseCaseStub } = makeSut()
       jest
