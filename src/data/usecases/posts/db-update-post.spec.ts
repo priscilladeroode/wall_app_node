@@ -1,4 +1,5 @@
 import {
+  CheckPostExistsResponseModel,
   UpdatePostRequestModel,
   UpdatePostResponseModel
 } from '../../models/posts'
@@ -6,9 +7,11 @@ import faker from 'faker'
 import { UpdatePostRequestEntity } from '../../../domain/entities/posts'
 import { UpdatePostRepository } from '../../protocols/db/posts/update-post-repository'
 import { DBUpdatePost } from './db-update-post'
+import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
 
 interface SutTypes {
   sut: DBUpdatePost
+  checkPostExistsByIdRepositoryStub: CheckPostExistsByIdRepository
   updatePostRepositoryStub: UpdatePostRepository
 }
 
@@ -44,11 +47,26 @@ const makeUpdatePostRepository = (): UpdatePostRepository => {
   return new UpdatePostRepositoryStub()
 }
 
+const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
+  class CheckPostExistsByIdRepositoryStub
+  implements CheckPostExistsByIdRepository {
+    async checkById (id: string): Promise<CheckPostExistsResponseModel> {
+      return await Promise.resolve(true)
+    }
+  }
+  return new CheckPostExistsByIdRepositoryStub()
+}
+
 const makeSut = (): SutTypes => {
+  const checkPostExistsByIdRepositoryStub = makeCheckPostExistsByIdRepository()
   const updatePostRepositoryStub = makeUpdatePostRepository()
-  const sut = new DBUpdatePost(updatePostRepositoryStub)
+  const sut = new DBUpdatePost(
+    checkPostExistsByIdRepositoryStub,
+    updatePostRepositoryStub
+  )
   return {
     sut,
+    checkPostExistsByIdRepositoryStub,
     updatePostRepositoryStub
   }
 }
@@ -69,6 +87,18 @@ describe('DBUpdatePost', () => {
         .mockReturnValueOnce(Promise.reject(new Error()))
       const promise = sut.update(request)
       await expect(promise).rejects.toThrow()
+    })
+  })
+
+  describe('CheckPostExistsByIdRepository', () => {
+    test('Should call CheckPostExistsByIdRepository with correct values', async () => {
+      const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+      const checkByIdSpy = jest.spyOn(
+        checkPostExistsByIdRepositoryStub,
+        'checkById'
+      )
+      await sut.update(request)
+      expect(checkByIdSpy).toHaveBeenCalledWith(id)
     })
   })
 })
