@@ -87,5 +87,14 @@ describe('DBDeletePost', () => {
       await sut.delete(request)
       expect(checkByIdSpy).toHaveBeenCalledWith(request.id)
     })
+
+    test('Should throw if DeletePostByIdRepository throws', async () => {
+      const { sut, deletePostByIdRepository } = makeSut()
+      jest
+        .spyOn(deletePostByIdRepository, 'deleteById')
+        .mockReturnValueOnce(Promise.reject(new Error()))
+      const promise = sut.delete(request)
+      await expect(promise).rejects.toThrow()
+    })
   })
 })
