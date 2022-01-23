@@ -1,5 +1,5 @@
 import { DeletePostResponseEntity } from '../../../domain/entities/posts/delete-post-response-entity'
-import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-usecase'
+import { DeletePostByIdUseCase } from '../../../domain/usecases/posts/delete-post-by-id-usecase'
 import { Validation } from '../../protocols/validation'
 import { DeletePostByIdController } from './delete-post-by-id-controller'
 import faker from 'faker'
@@ -22,7 +22,7 @@ import { ResultEnum } from '../../../domain/enums/result-enums'
 type SutTypes = {
   sut: DeletePostByIdController
   validationStub: Validation
-  deletePostUseCaseStub: DeletePostUseCase
+  deletePostUseCaseStub: DeletePostByIdUseCase
 }
 
 const id = faker.datatype.uuid()
@@ -42,8 +42,8 @@ const makeValidation = (): Validation => {
   return new ValidationStub()
 }
 
-const makeDeletePostUseCase = (): DeletePostUseCase => {
-  class DeletePostUseCaseStub implements DeletePostUseCase {
+const makeDeletePostUseCase = (): DeletePostByIdUseCase => {
+  class DeletePostUseCaseStub implements DeletePostByIdUseCase {
     async delete (
       entity: DeletePostRequestEntity
     ): Promise<DeletePostResponseEntity> {

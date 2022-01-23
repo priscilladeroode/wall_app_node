@@ -1,14 +1,14 @@
 import faker from 'faker'
 
 import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
-import { DBDeletePost } from './db-delete-post'
+import { DBDeletePostById } from './db-delete-post-by-id'
 import { CheckPostExistsResponseModel } from '../../models/posts'
 import { DeletePostRequestEntity } from '../../../domain/entities/posts'
 import { DeletePostByIdRepository } from '../../protocols/db/posts/delete-post-repository'
 import { ResultEnum } from '../../../domain/enums/result-enums'
 
 interface SutTypes {
-  sut: DBDeletePost
+  sut: DBDeletePostById
   checkPostExistsByIdRepositoryStub: CheckPostExistsByIdRepository
   deletePostByIdRepository: DeletePostByIdRepository
 }
@@ -57,7 +57,7 @@ const makeDeletePostByIdRepository = (): DeletePostByIdRepository => {
 const makeSut = (): SutTypes => {
   const checkPostExistsByIdRepositoryStub = makeCheckPostExistsByIdRepository()
   const deletePostByIdRepository = makeDeletePostByIdRepository()
-  const sut = new DBDeletePost(
+  const sut = new DBDeletePostById(
     checkPostExistsByIdRepositoryStub,
     deletePostByIdRepository
   )
