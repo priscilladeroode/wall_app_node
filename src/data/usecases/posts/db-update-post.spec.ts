@@ -17,7 +17,7 @@ interface SutTypes {
   sut: DBUpdatePost
   checkPostExistsByIdRepositoryStub: CheckPostExistsByIdRepository
   updatePostRepositoryStub: UpdatePostRepository
-  loadPostByIdRepository: LoadPostByIdRepository
+  loadPostByIdRepositoryStub: LoadPostByIdRepository
 }
 
 const title = faker.lorem.sentence()
@@ -95,11 +95,11 @@ const makeLoadPostByIdRepository = (): LoadPostByIdRepository => {
 }
 
 const makeSut = (): SutTypes => {
-  const loadPostByIdRepository = makeLoadPostByIdRepository()
+  const loadPostByIdRepositoryStub = makeLoadPostByIdRepository()
   const checkPostExistsByIdRepositoryStub = makeCheckPostExistsByIdRepository()
   const updatePostRepositoryStub = makeUpdatePostRepository()
   const sut = new DBUpdatePost(
-    loadPostByIdRepository,
+    loadPostByIdRepositoryStub,
     checkPostExistsByIdRepositoryStub,
     updatePostRepositoryStub
   )
@@ -107,7 +107,7 @@ const makeSut = (): SutTypes => {
     sut,
     checkPostExistsByIdRepositoryStub,
     updatePostRepositoryStub,
-    loadPostByIdRepository
+    loadPostByIdRepositoryStub
   }
 }
 
@@ -153,10 +153,19 @@ describe('DBUpdatePost', () => {
 
   describe('LoadPostByIdRepository', () => {
     test('Should call loadPostByIdRepository with correct values', async () => {
-      const { sut, loadPostByIdRepository } = makeSut()
-      const checkByIdSpy = jest.spyOn(loadPostByIdRepository, 'loadById')
+      const { sut, loadPostByIdRepositoryStub } = makeSut()
+      const checkByIdSpy = jest.spyOn(loadPostByIdRepositoryStub, 'loadById')
       await sut.update(request)
       expect(checkByIdSpy).toHaveBeenCalledWith(loadPostByIdRequestModel)
+    })
+
+    test('Should throw if loadPostByIdRepository throws', async () => {
+      const { sut, loadPostByIdRepositoryStub } = makeSut()
+      jest
+        .spyOn(loadPostByIdRepositoryStub, 'loadById')
+        .mockReturnValueOnce(Promise.reject(new Error()))
+      const promise = sut.update(request)
+      await expect(promise).rejects.toThrow()
     })
   })
 })
