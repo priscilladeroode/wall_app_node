@@ -7,10 +7,11 @@ import { LoadPostsByUidController } from '@/presentation/controllers/posts/load-
 import { LoadPostsByUidUseCase } from '@/domain/usecases/posts/load-posts-by-uid-usecase'
 import { Validation } from '@/presentation/protocols/validation'
 import { throwError } from '@/tests/domain/mocks'
+import { ValidationSpy } from '../../mocks/mock-validation'
 
 type SutTypes = {
   sut: LoadPostsByUidController
-  validationStub: Validation
+  validationSpy: Validation
   loadPostsByUidUseCaseStub: LoadPostsByUidUseCase
 }
 const userId = faker.datatype.uuid()
@@ -38,25 +39,16 @@ const makeLoadPostsByUidUseCaseStub = (): LoadPostsByUidUseCase => {
   return new LoadPostsByUidUseCaseStub()
 }
 
-const makeValidation = (): Validation => {
-  class ValidationStub implements Validation {
-    validate (input: any): Error {
-      return null
-    }
-  }
-  return new ValidationStub()
-}
-
 const makeSut = (): SutTypes => {
-  const validationStub = makeValidation()
+  const validationSpy = new ValidationSpy()
   const loadPostsByUidUseCaseStub = makeLoadPostsByUidUseCaseStub()
   const sut = new LoadPostsByUidController(
     loadPostsByUidUseCaseStub,
-    validationStub
+    validationSpy
   )
   return {
     sut,
-    validationStub,
+    validationSpy,
     loadPostsByUidUseCaseStub
   }
 }
@@ -90,16 +82,16 @@ describe('LoadPostsByUidController', () => {
 
   describe('Validation', () => {
     test('Shoud call Validation with correct values', async () => {
-      const { sut, validationStub } = makeSut()
-      const validateSpy = jest.spyOn(validationStub, 'validate')
+      const { sut, validationSpy } = makeSut()
+      const validateSpy = jest.spyOn(validationSpy, 'validate')
       await sut.handle(request)
       expect(validateSpy).toHaveBeenCalledWith(request.body)
     })
 
     test('Shoud return 400 if Validation returns an error', async () => {
-      const { sut, validationStub } = makeSut()
+      const { sut, validationSpy } = makeSut()
       jest
-        .spyOn(validationStub, 'validate')
+        .spyOn(validationSpy, 'validate')
         .mockReturnValueOnce(new MissingParamError('any_field'))
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(
@@ -108,8 +100,8 @@ describe('LoadPostsByUidController', () => {
     })
 
     test('Shoud return 500 if Validation throws', async () => {
-      const { sut, validationStub } = makeSut()
-      jest.spyOn(validationStub, 'validate').mockImplementationOnce(throwError)
+      const { sut, validationSpy } = makeSut()
+      jest.spyOn(validationSpy, 'validate').mockImplementationOnce(throwError)
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })

@@ -19,10 +19,11 @@ import {
 import { DeletePostRequestEntity } from '@/domain/entities/posts'
 import { ResultEnum } from '@/domain/enums/result-enums'
 import { throwError } from '@/tests/domain/mocks'
+import { ValidationSpy } from '../../mocks/mock-validation'
 
 type SutTypes = {
   sut: DeletePostByIdController
-  validationStub: Validation
+  validationSpy: Validation
   deletePostUseCaseStub: DeletePostByIdUseCase
 }
 
@@ -33,15 +34,6 @@ const missingParam = faker.datatype.string()
 const request = { body: { id, uid } }
 
 const deletePostRequestEntity: DeletePostRequestEntity = { id, uid }
-
-const makeValidation = (): Validation => {
-  class ValidationStub implements Validation {
-    validate (input: any): Error {
-      return null
-    }
-  }
-  return new ValidationStub()
-}
 
 const makeDeletePostUseCase = (): DeletePostByIdUseCase => {
   class DeletePostUseCaseStub implements DeletePostByIdUseCase {
@@ -55,15 +47,12 @@ const makeDeletePostUseCase = (): DeletePostByIdUseCase => {
 }
 
 const makeSut = (): SutTypes => {
-  const validationStub = makeValidation()
+  const validationSpy = new ValidationSpy()
   const deletePostUseCaseStub = makeDeletePostUseCase()
-  const sut = new DeletePostByIdController(
-    validationStub,
-    deletePostUseCaseStub
-  )
+  const sut = new DeletePostByIdController(validationSpy, deletePostUseCaseStub)
   return {
     sut,
-    validationStub,
+    validationSpy,
     deletePostUseCaseStub
   }
 }
@@ -71,16 +60,16 @@ const makeSut = (): SutTypes => {
 describe('UpdatePostController', () => {
   describe('Validation', () => {
     test('Shoud call Validation with correct values', async () => {
-      const { sut, validationStub } = makeSut()
-      const validateSpy = jest.spyOn(validationStub, 'validate')
+      const { sut, validationSpy } = makeSut()
+      const validateSpy = jest.spyOn(validationSpy, 'validate')
       await sut.handle(request)
       expect(validateSpy).toHaveBeenCalledWith(request.body)
     })
 
     test('Shoud return 400 if Validation returns an error', async () => {
-      const { sut, validationStub } = makeSut()
+      const { sut, validationSpy } = makeSut()
       jest
-        .spyOn(validationStub, 'validate')
+        .spyOn(validationSpy, 'validate')
         .mockReturnValueOnce(new MissingParamError(missingParam))
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(
@@ -89,8 +78,8 @@ describe('UpdatePostController', () => {
     })
 
     test('Shoud return 500 if Validation throws', async () => {
-      const { sut, validationStub } = makeSut()
-      jest.spyOn(validationStub, 'validate').mockImplementationOnce(throwError)
+      const { sut, validationSpy } = makeSut()
+      jest.spyOn(validationSpy, 'validate').mockImplementationOnce(throwError)
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })

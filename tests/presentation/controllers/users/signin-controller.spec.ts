@@ -14,11 +14,12 @@ import {
 } from '@/domain/entities/users'
 import { AuthenticationUseCase } from '@/domain/usecases/users/authentication-usecase'
 import { Validation } from '@/presentation/protocols/validation'
+import { ValidationSpy } from '../../mocks/mock-validation'
 
 type SutTypes = {
   sut: SignInController
   authenticationStub: AuthenticationUseCase
-  validationStub: Validation
+  validationSpy: Validation
 }
 
 const email = faker.internet.email()
@@ -47,23 +48,14 @@ const makeAuthentication = (): AuthenticationUseCase => {
   return new AuthenticationUseCaseStub()
 }
 
-const makeValidation = (): Validation => {
-  class ValidationStub implements Validation {
-    validate (input: any): Error {
-      return null
-    }
-  }
-  return new ValidationStub()
-}
-
 const makeSut = (): SutTypes => {
-  const validationStub = makeValidation()
+  const validationSpy = new ValidationSpy()
   const authenticationStub = makeAuthentication()
-  const sut = new SignInController(validationStub, authenticationStub)
+  const sut = new SignInController(validationSpy, authenticationStub)
   return {
     sut,
     authenticationStub,
-    validationStub
+    validationSpy
   }
 }
 
@@ -107,17 +99,17 @@ describe('Sign In Controller', () => {
   })
 
   test('Shoud call Validation with correct values', async () => {
-    const { sut, validationStub } = makeSut()
-    const validateSpy = jest.spyOn(validationStub, 'validate')
+    const { sut, validationSpy } = makeSut()
+    const validateSpy = jest.spyOn(validationSpy, 'validate')
     const httpRequest = fakeRequest
     await sut.handle(httpRequest)
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
   })
 
   test('Shoud return 400 if Validation returns an error', async () => {
-    const { sut, validationStub } = makeSut()
+    const { sut, validationSpy } = makeSut()
     jest
-      .spyOn(validationStub, 'validate')
+      .spyOn(validationSpy, 'validate')
       .mockReturnValueOnce(new MissingParamError('any_field'))
     const httpRequest = fakeRequest
     const httpResponse = await sut.handle(httpRequest)

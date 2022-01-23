@@ -22,10 +22,11 @@ import {
   serverError
 } from '@/presentation/helpers/http'
 import { ResultEnum } from '@/domain/enums/result-enums'
+import { ValidationSpy } from '../../mocks/mock-validation'
 
 type SutTypes = {
   sut: UpdatePostController
-  validationStub: Validation
+  validationSpy: Validation
   updatePostUseCaseStub: UpdatePostUseCase
 }
 
@@ -61,15 +62,6 @@ const updatePostResponseEntity: UpdatePostResponseEntity = {
   createdAt
 }
 
-const makeValidation = (): Validation => {
-  class ValidationStub implements Validation {
-    validate (input: any): Error {
-      return null
-    }
-  }
-  return new ValidationStub()
-}
-
 const makeUpdatePostUseCase = (): UpdatePostUseCase => {
   class UpdatePostUseCaseStub implements UpdatePostUseCase {
     async update (
@@ -82,12 +74,12 @@ const makeUpdatePostUseCase = (): UpdatePostUseCase => {
 }
 
 const makeSut = (): SutTypes => {
-  const validationStub = makeValidation()
+  const validationSpy = new ValidationSpy()
   const updatePostUseCaseStub = makeUpdatePostUseCase()
-  const sut = new UpdatePostController(validationStub, updatePostUseCaseStub)
+  const sut = new UpdatePostController(validationSpy, updatePostUseCaseStub)
   return {
     sut,
-    validationStub,
+    validationSpy,
     updatePostUseCaseStub
   }
 }
@@ -95,16 +87,16 @@ const makeSut = (): SutTypes => {
 describe('UpdatePostController', () => {
   describe('Validation', () => {
     test('Shoud call Validation with correct values', async () => {
-      const { sut, validationStub } = makeSut()
-      const validateSpy = jest.spyOn(validationStub, 'validate')
+      const { sut, validationSpy } = makeSut()
+      const validateSpy = jest.spyOn(validationSpy, 'validate')
       await sut.handle(request)
       expect(validateSpy).toHaveBeenCalledWith(request.body)
     })
 
     test('Shoud return 400 if Validation returns an error', async () => {
-      const { sut, validationStub } = makeSut()
+      const { sut, validationSpy } = makeSut()
       jest
-        .spyOn(validationStub, 'validate')
+        .spyOn(validationSpy, 'validate')
         .mockReturnValueOnce(new MissingParamError(missingParam))
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(
