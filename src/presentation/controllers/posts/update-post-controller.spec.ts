@@ -8,8 +8,8 @@ import { UpdatePostController } from './update-post-controller'
 
 import faker from 'faker'
 import { UpdatePostUseCase } from '../../../domain/usecases/posts/update-post-usecase'
-import { MissingParamError } from '../../errors'
-import { badRequest } from '../../helpers/http'
+import { MissingParamError, ServerError } from '../../errors'
+import { badRequest, serverError } from '../../helpers/http'
 
 type SutTypes = {
   sut: UpdatePostController
@@ -107,6 +107,17 @@ describe('UpdatePostController', () => {
       const updateSpy = jest.spyOn(updatePostUseCaseStub, 'update')
       await sut.handle(request)
       expect(updateSpy).toHaveBeenCalledWith(updatePostRequestEntity)
+    })
+
+    test('Shoud return 500 if UpdatePostUseCase throws', async () => {
+      const { sut, updatePostUseCaseStub } = makeSut()
+      jest
+        .spyOn(updatePostUseCaseStub, 'update')
+        .mockImplementationOnce(async () => {
+          return await Promise.reject(new Error())
+        })
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
   })
 })
