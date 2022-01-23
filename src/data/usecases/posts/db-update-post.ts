@@ -26,8 +26,8 @@ export class DBUpdatePost implements UpdatePostUseCase {
         const result = await this.loadPostByIdRepository.loadById(post.id)
         return result
       }
-      return null
+      return { error: 'forbidden' }
     }
-    return null
+    return { error: 'not_found' }
   }
 }

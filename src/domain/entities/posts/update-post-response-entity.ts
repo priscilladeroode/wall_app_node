@@ -1,3 +1,3 @@
 import { PostEntity } from '.'
 
-export type UpdatePostResponseEntity = PostEntity
+export type UpdatePostResponseEntity = PostEntity | { error: string }
