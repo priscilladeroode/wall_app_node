@@ -15,7 +15,7 @@ const password = faker.internet.password()
 const email = faker.internet.email()
 const name = faker.name.findName()
 let hashedPassword: string
-let id: string
+let uid: string
 let accessToken: string
 
 const title = faker.lorem.sentence()
@@ -44,10 +44,10 @@ describe('Posts Routes', () => {
       email,
       password: hashedPassword
     })
-    accessToken = sign({ id }, env.jwtSecret)
-    id = result.insertedId.toHexString()
+    accessToken = sign({ id: uid }, env.jwtSecret)
+    uid = result.insertedId.toHexString()
     await usersCollection.updateOne(
-      { _id: new ObjectId(id) },
+      { _id: new ObjectId(uid) },
       {
         $set: {
           accessToken
@@ -72,14 +72,14 @@ describe('Posts Routes', () => {
 
   describe('/GET posts', () => {
     test('Should return a 200 on load all post', async () => {
-      await postsCollection.insertOne({ title, content, uid: id })
+      await postsCollection.insertOne({ title, content, uid })
       await request(app).get('/api/posts').expect(200)
     })
   })
 
   describe('/GET postsByUser', () => {
     test('Should return a 200 on load user post', async () => {
-      await postsCollection.insertOne({ title, content, uid: id })
+      await postsCollection.insertOne({ title, content, uid })
       await request(app).get('/api/postsByUser/id').expect(200)
     })
   })
@@ -89,7 +89,7 @@ describe('Posts Routes', () => {
       const postId = await postsCollection.insertOne({
         title,
         content,
-        uid: id
+        uid
       })
       await request(app)
         .put('/api/posts/id')
@@ -99,6 +99,18 @@ describe('Posts Routes', () => {
           content: content2,
           id: postId.insertedId.toHexString()
         })
+        .expect(200)
+    })
+  })
+
+  describe('/DELETE deleteById', () => {
+    test('Should return a 200 on delete', async () => {
+      const id = (
+        await postsCollection.insertOne({ title, content, uid })
+      ).insertedId.toHexString()
+      await request(app)
+        .delete(`/api/deleteById/${id}`)
+        .set('x-access-token', accessToken)
         .expect(200)
     })
   })
