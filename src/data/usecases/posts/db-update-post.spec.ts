@@ -3,8 +3,7 @@ import {
   LoadPostByIdRequestModel,
   LoadPostByIdResponseModel,
   PostModel,
-  UpdatePostRequestModel,
-  UpdatePostResponseModel
+  UpdatePostRequestModel
 } from '../../models/posts'
 import faker from 'faker'
 import { UpdatePostRequestEntity } from '../../../domain/entities/posts'
@@ -56,8 +55,6 @@ const checkPostExistsResponseModelWithOtherUid: CheckPostExistsResponseModel = {
   uid: uidOtherUser
 }
 
-const updatePostResponseModel: UpdatePostResponseModel = id
-
 const loadPostByIdRequestModel: LoadPostByIdRequestModel = id
 
 const post: PostModel = {
@@ -72,10 +69,8 @@ const loadPostByIdResponseModel: LoadPostByIdResponseModel = post
 
 const makeUpdatePostRepository = (): UpdatePostRepository => {
   class UpdatePostRepositoryStub implements UpdatePostRepository {
-    async update (
-      post: UpdatePostRequestModel
-    ): Promise<UpdatePostResponseModel> {
-      return await Promise.resolve(updatePostResponseModel)
+    async update (post: UpdatePostRequestModel): Promise<void> {
+      return await Promise.resolve()
     }
   }
   return new UpdatePostRepositoryStub()
