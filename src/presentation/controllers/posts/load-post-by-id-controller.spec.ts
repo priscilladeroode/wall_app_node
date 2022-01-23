@@ -1,7 +1,7 @@
 import faker from 'faker'
 
 import { PostEntity } from '../../../domain/entities/posts'
-import { LoadPostsByIdUseCase } from '../../../domain/usecases/posts/load-post-by-id-usecase'
+import { LoadPostByIdUseCase } from '../../../domain/usecases/posts/load-post-by-id-usecase'
 import { MissingParamError, NotFoundError, ServerError } from '../../errors'
 import { badRequest, notFound, ok, serverError } from '../../helpers/http'
 import { HttpRequest } from '../../protocols'
@@ -11,7 +11,7 @@ import { LoadPostsByIdController } from './load-post-by-id-controller'
 type SutTypes = {
   sut: LoadPostsByIdController
   validationStub: Validation
-  loadPostsByIdUseCaseStub: LoadPostsByIdUseCase
+  loadPostsByIdUseCaseStub: LoadPostByIdUseCase
 }
 
 const title = faker.lorem.sentence()
@@ -33,8 +33,8 @@ const makeValidation = (): Validation => {
   return new ValidationStub()
 }
 
-const makeLoadPostsByIdUseCaseStub = (): LoadPostsByIdUseCase => {
-  class LoadPostsByIdUseCaseStub implements LoadPostsByIdUseCase {
+const makeLoadPostsByIdUseCaseStub = (): LoadPostByIdUseCase => {
+  class LoadPostsByIdUseCaseStub implements LoadPostByIdUseCase {
     async loadById (id: string): Promise<PostEntity> {
       return await Promise.resolve(postEntity)
     }
@@ -88,8 +88,8 @@ describe('LoadPostsByIdController', () => {
     })
   })
 
-  describe('LoadPostsByIdUseCase', () => {
-    test('Shoud return 500 if LoadPostsByIdUseCase throws', async () => {
+  describe('LoadPostByIdUseCase', () => {
+    test('Shoud return 500 if LoadPostByIdUseCase throws', async () => {
       const { sut, loadPostsByIdUseCaseStub } = makeSut()
       jest
         .spyOn(loadPostsByIdUseCaseStub, 'loadById')
@@ -100,7 +100,7 @@ describe('LoadPostsByIdController', () => {
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
 
-    test('Shoud call LoadPostsByIdUseCase with correct values', async () => {
+    test('Shoud call LoadPostByIdUseCase with correct values', async () => {
       const { sut, loadPostsByIdUseCaseStub } = makeSut()
       const loadByUidSpy = jest.spyOn(loadPostsByIdUseCaseStub, 'loadById')
       await sut.handle(request)
@@ -108,13 +108,13 @@ describe('LoadPostsByIdController', () => {
     })
   })
 
-  test('Shoud return 200 if LoadPostsByIdUseCase return a post', async () => {
+  test('Shoud return 200 if LoadPostByIdUseCase return a post', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(ok(postEntity))
   })
 
-  test('Shoud return 404 if LoadPostsByIdUseCase return null', async () => {
+  test('Shoud return 404 if LoadPostByIdUseCase return null', async () => {
     const { sut, loadPostsByIdUseCaseStub } = makeSut()
     jest
       .spyOn(loadPostsByIdUseCaseStub, 'loadById')
