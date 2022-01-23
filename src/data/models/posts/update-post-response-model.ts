@@ -1,3 +1,1 @@
-export type UpdatePostResponseModel = {
-  id: string
-}
+export type UpdatePostResponseModel = string
