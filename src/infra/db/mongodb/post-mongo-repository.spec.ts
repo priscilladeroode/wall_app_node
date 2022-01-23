@@ -212,4 +212,15 @@ describe('User Mongo Repository', () => {
       expect(result.uid).toBeTruthy()
     })
   })
+
+  describe('update', () => {
+    test('Should update a post on success', async () => {
+      const sut = makeSut()
+      const post = { title, content, uid: listUserId[0] }
+      const inserted = (await postsCollection.insertOne(post)).insertedId
+      await sut.deleteById(inserted.toHexString())
+      const result = await postsCollection.findOne({ _id: inserted })
+      expect(result).toBeNull()
+    })
+  })
 })
