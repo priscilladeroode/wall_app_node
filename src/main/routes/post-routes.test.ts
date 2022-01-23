@@ -79,8 +79,19 @@ describe('Posts Routes', () => {
 
   describe('/GET postsByUser', () => {
     test('Should return a 200 on load user post', async () => {
-      await postsCollection.insertOne({ title, content, uid })
-      await request(app).get('/api/postsByUser/id').expect(200)
+      const id = (
+        await postsCollection.insertOne({ title, content, uid })
+      ).insertedId.toHexString()
+      await request(app).get(`/api/postsByUser/${id}`).expect(200)
+    })
+  })
+
+  describe('/GET posts by id', () => {
+    test('Should return a 200 on load a post by id', async () => {
+      const id = (
+        await postsCollection.insertOne({ title, content, uid })
+      ).insertedId.toHexString()
+      await request(app).get(`/api/posts/${id}`).expect(200)
     })
   })
 
