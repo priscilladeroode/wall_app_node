@@ -1,5 +1,5 @@
 import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-usecase'
-import { badRequest } from '../../helpers/http'
+import { badRequest, serverError } from '../../helpers/http'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 
@@ -10,10 +10,14 @@ export class DeletePostController implements Controller {
   ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
-    const error = this.validation.validate(httpRequest.body)
-    if (error) {
-      return badRequest(error)
+    try {
+      const error = this.validation.validate(httpRequest.body)
+      if (error) {
+        return badRequest(error)
+      }
+      return null
+    } catch (error) {
+      return serverError(error)
     }
-    return null
   }
 }
