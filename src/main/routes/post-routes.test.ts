@@ -62,10 +62,7 @@ describe('Posts Routes', () => {
       await request(app)
         .post('/api/posts')
         .set('x-access-token', accessToken)
-        .send({
-          title: faker.lorem.sentence(),
-          content: faker.lorem.paragraphs()
-        })
+        .send({ title, content })
         .expect(201)
     })
   })
