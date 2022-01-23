@@ -8,6 +8,8 @@ import { UpdatePostController } from './update-post-controller'
 
 import faker from 'faker'
 import { UpdatePostUseCase } from '../../../domain/usecases/posts/update-post-usecase'
+import { MissingParamError } from '../../errors'
+import { badRequest } from '../../helpers/http'
 
 type SutTypes = {
   sut: UpdatePostController
@@ -21,6 +23,7 @@ const content = faker.lorem.paragraphs()
 const uid = faker.datatype.uuid()
 const createdBy = faker.name.findName()
 const createdAt = faker.datatype.datetime()
+const missingParam = faker.datatype.string()
 
 const request: HttpRequest = {
   body: {
@@ -77,6 +80,17 @@ describe('UpdatePostController', () => {
       const validateSpy = jest.spyOn(validationStub, 'validate')
       await sut.handle(request)
       expect(validateSpy).toHaveBeenCalledWith(request.body)
+    })
+
+    test('Shoud return 400 if Validation returns an error', async () => {
+      const { sut, validationStub } = makeSut()
+      jest
+        .spyOn(validationStub, 'validate')
+        .mockReturnValueOnce(new MissingParamError(missingParam))
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(
+        badRequest(new MissingParamError(missingParam))
+      )
     })
   })
 })
