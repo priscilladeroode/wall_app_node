@@ -6,10 +6,10 @@ import { MissingParamError, NotFoundError, ServerError } from '../../errors'
 import { badRequest, notFound, ok, serverError } from '../../helpers/http'
 import { HttpRequest } from '../../protocols'
 import { Validation } from '../../protocols/validation'
-import { LoadPostsByIdController } from './load-post-by-id-controller'
+import { LoadPostByIdController } from './load-post-by-id-controller'
 
 type SutTypes = {
-  sut: LoadPostsByIdController
+  sut: LoadPostByIdController
   validationStub: Validation
   loadPostsByIdUseCaseStub: LoadPostByIdUseCase
 }
@@ -45,7 +45,7 @@ const makeLoadPostsByIdUseCaseStub = (): LoadPostByIdUseCase => {
 const makeSut = (): SutTypes => {
   const validationStub = makeValidation()
   const loadPostsByIdUseCaseStub = makeLoadPostsByIdUseCaseStub()
-  const sut = new LoadPostsByIdController(
+  const sut = new LoadPostByIdController(
     loadPostsByIdUseCaseStub,
     validationStub
   )
