@@ -13,14 +13,14 @@ type SutTypes = {
   sut: LoadPostsByUidController
   loadPostsByUidUseCaseStub: LoadPostsByUidUseCase
 }
-const uid = faker.datatype.uuid()
+const userId = faker.datatype.uuid()
 const title = faker.lorem.sentence()
 const content = faker.lorem.paragraphs()
 const id = faker.datatype.uuid()
 const createdAt = faker.datatype.datetime()
 const createdBy = faker.name.findName()
 
-const request = { body: { uid } }
+const request = { body: { userId } }
 
 const postEntity: PostEntity = { id, title, content, createdAt, createdBy }
 
@@ -63,5 +63,12 @@ describe('LoadPostsByUidController', () => {
     const { sut } = makeSut()
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(ok(loadPostsResponseEntity))
+  })
+
+  test('Shoud call LoadPostsByUidUseCase with correct values', async () => {
+    const { sut, loadPostsByUidUseCaseStub } = makeSut()
+    const loadByUidSpy = jest.spyOn(loadPostsByUidUseCaseStub, 'loadByUid')
+    await sut.handle(request)
+    expect(loadByUidSpy).toHaveBeenCalledWith({ uid: userId })
   })
 })
