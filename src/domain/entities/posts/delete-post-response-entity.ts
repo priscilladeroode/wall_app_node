@@ -1,1 +1,1 @@
-export type DeletePostResponseEntity = { message: string }
+export type DeletePostResponseEntity = { message: string } | { error: string }
