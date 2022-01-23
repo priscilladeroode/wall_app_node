@@ -11,7 +11,7 @@ import {
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { Validation } from '../../protocols/validation'
 
-export class DeletePostController implements Controller {
+export class DeletePostByIdController implements Controller {
   constructor (
     private readonly validation: Validation,
     private readonly deletePostUseCase: DeletePostUseCase

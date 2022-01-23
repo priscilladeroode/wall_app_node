@@ -1,7 +1,7 @@
 import { DeletePostResponseEntity } from '../../../domain/entities/posts/delete-post-response-entity'
 import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-usecase'
 import { Validation } from '../../protocols/validation'
-import { DeletePostController } from './delete-post-controller'
+import { DeletePostByIdController } from './delete-post-by-id-controller'
 import faker from 'faker'
 import {
   MissingParamError,
@@ -20,7 +20,7 @@ import { DeletePostRequestEntity } from '../../../domain/entities/posts'
 import { ResultEnum } from '../../../domain/enums/result-enums'
 
 type SutTypes = {
-  sut: DeletePostController
+  sut: DeletePostByIdController
   validationStub: Validation
   deletePostUseCaseStub: DeletePostUseCase
 }
@@ -56,7 +56,10 @@ const makeDeletePostUseCase = (): DeletePostUseCase => {
 const makeSut = (): SutTypes => {
   const validationStub = makeValidation()
   const deletePostUseCaseStub = makeDeletePostUseCase()
-  const sut = new DeletePostController(validationStub, deletePostUseCaseStub)
+  const sut = new DeletePostByIdController(
+    validationStub,
+    deletePostUseCaseStub
+  )
   return {
     sut,
     validationStub,
