@@ -71,26 +71,16 @@ describe('Posts Routes', () => {
   })
 
   describe('/GET posts', () => {
-    test('Should return a 403 on load post without accessToken', async () => {
-      await request(app).get('/api/posts').expect(403)
-    })
-
     test('Should return a 200 on load all post', async () => {
       await postsCollection.insertOne({ title, content, uid: id })
-      await request(app)
-        .get('/api/posts')
-        .set('x-access-token', accessToken)
-        .expect(200)
+      await request(app).get('/api/posts').expect(200)
     })
   })
 
   describe('/GET postsByUser', () => {
     test('Should return a 200 on load user post', async () => {
       await postsCollection.insertOne({ title, content, uid: id })
-      await request(app)
-        .get('/api/postsByUser/id')
-        .set('x-access-token', accessToken)
-        .expect(200)
+      await request(app).get('/api/postsByUser/id').expect(200)
     })
   })
 })
