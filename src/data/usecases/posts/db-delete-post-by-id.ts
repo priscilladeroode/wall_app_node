@@ -3,11 +3,11 @@ import {
   DeletePostResponseEntity
 } from '../../../domain/entities/posts'
 import { ResultEnum } from '../../../domain/enums/result-enums'
-import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-usecase'
+import { DeletePostByIdUseCase } from '../../../domain/usecases/posts/delete-post-by-id-usecase'
 import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
 import { DeletePostByIdRepository } from '../../protocols/db/posts/delete-post-repository'
 
-export class DBDeletePost implements DeletePostUseCase {
+export class DBDeletePostById implements DeletePostByIdUseCase {
   constructor (
     private readonly checkPostExistsByIdRepository: CheckPostExistsByIdRepository,
     private readonly deletePostByIdRepository: DeletePostByIdRepository

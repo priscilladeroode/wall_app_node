@@ -3,6 +3,6 @@ import {
   DeletePostResponseEntity
 } from '../../entities/posts'
 
-export interface DeletePostUseCase {
+export interface DeletePostByIdUseCase {
   delete: (entity: DeletePostRequestEntity) => Promise<DeletePostResponseEntity>
 }

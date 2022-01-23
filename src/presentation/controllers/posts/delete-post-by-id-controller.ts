@@ -1,5 +1,5 @@
 import { ResultEnum } from '../../../domain/enums/result-enums'
-import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-usecase'
+import { DeletePostByIdUseCase } from '../../../domain/usecases/posts/delete-post-by-id-usecase'
 import { NotFoundError, UnauthorizedError } from '../../errors'
 import {
   badRequest,
@@ -14,7 +14,7 @@ import { Validation } from '../../protocols/validation'
 export class DeletePostByIdController implements Controller {
   constructor (
     private readonly validation: Validation,
-    private readonly deletePostUseCase: DeletePostUseCase
+    private readonly deletePostByIdUseCase: DeletePostByIdUseCase
   ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -25,7 +25,7 @@ export class DeletePostByIdController implements Controller {
       }
 
       const { uid, id } = httpRequest.body
-      const post = await this.deletePostUseCase.delete({ id, uid })
+      const post = await this.deletePostByIdUseCase.delete({ id, uid })
       switch (post) {
         case ResultEnum.notFound: {
           return notFound(new NotFoundError(id))
