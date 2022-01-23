@@ -99,5 +99,12 @@ describe('LoadPostsByIdController', () => {
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
+
+    test('Shoud call LoadPostsByIdUseCase with correct values', async () => {
+      const { sut, loadPostsByIdUseCaseStub } = makeSut()
+      const loadByUidSpy = jest.spyOn(loadPostsByIdUseCaseStub, 'loadById')
+      await sut.handle(request)
+      expect(loadByUidSpy).toHaveBeenCalledWith(request.body.id)
+    })
   })
 })
