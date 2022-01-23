@@ -19,6 +19,7 @@ const title = faker.lorem.sentence()
 const content = faker.lorem.paragraphs()
 const uid = faker.datatype.uuid()
 const id = faker.datatype.uuid()
+const uidOtherUser = faker.datatype.uuid()
 
 const request: DeletePostRequestEntity = { id, uid }
 
@@ -33,11 +34,17 @@ const checkPostExistsResponseModel: CheckPostExistsResponseModel = {
   uid
 }
 
+const checkPostExistsResponseModelWithOtherUid: CheckPostExistsResponseModel = {
+  id,
+  title,
+  content,
+  uid: uidOtherUser
+}
+
 const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
   class CheckPostExistsByIdRepositoryStub
-    implements CheckPostExistsByIdRepository
-  {
-    async checkById(id: string): Promise<CheckPostExistsResponseModel> {
+  implements CheckPostExistsByIdRepository {
+    async checkById (id: string): Promise<CheckPostExistsResponseModel> {
       return await Promise.resolve(checkPostExistsResponseModel)
     }
   }
@@ -46,7 +53,7 @@ const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
 
 const makeDeletePostByIdRepository = (): DeletePostByIdRepository => {
   class DeletePostByIdRepositoryStub implements DeletePostByIdRepository {
-    async deleteById(id: string): Promise<void> {
+    async deleteById (id: string): Promise<void> {
       return await Promise.resolve()
     }
   }
@@ -128,7 +135,7 @@ describe('DBDeletePost', () => {
       .mockReturnValueOnce(
         Promise.resolve(checkPostExistsResponseModelWithOtherUid)
       )
-    const result = await sut.update(request)
+    const result = await sut.delete(request)
     expect(result).toEqual({ error: 'forbidden' })
   })
 })
