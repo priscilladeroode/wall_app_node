@@ -3,8 +3,19 @@ import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-us
 import { Validation } from '../../protocols/validation'
 import { DeletePostController } from './delete-post-controller'
 import faker from 'faker'
-import { MissingParamError, NotFoundError, ServerError } from '../../errors'
-import { badRequest, notFound, ok, serverError } from '../../helpers/http'
+import {
+  MissingParamError,
+  NotFoundError,
+  ServerError,
+  UnauthorizedError
+} from '../../errors'
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  ok,
+  serverError
+} from '../../helpers/http'
 import { DeletePostRequestEntity } from '../../../domain/entities/posts'
 import { ResultEnum } from '../../../domain/enums/result-enums'
 
@@ -111,7 +122,7 @@ describe('UpdatePostController', () => {
     expect(httpResponse).toEqual(ok({ message: 'Post deleted successfully' }))
   })
 
-  test('Shoud return 401 if post cant be not found', async () => {
+  test('Shoud return 404 if post cant be not found', async () => {
     const { sut, deletePostUseCaseStub } = makeSut()
     jest
       .spyOn(deletePostUseCaseStub, 'delete')
@@ -120,5 +131,16 @@ describe('UpdatePostController', () => {
       })
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(notFound(new NotFoundError(request.body.id)))
+  })
+
+  test('Shoud return 403 if post dont belong to the user', async () => {
+    const { sut, deletePostUseCaseStub } = makeSut()
+    jest
+      .spyOn(deletePostUseCaseStub, 'delete')
+      .mockImplementationOnce(async () => {
+        return await Promise.resolve(ResultEnum.forbidden)
+      })
+    const httpResponse = await sut.handle(request)
+    expect(httpResponse).toEqual(forbidden(new UnauthorizedError()))
   })
 })
