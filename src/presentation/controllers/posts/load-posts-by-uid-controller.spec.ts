@@ -2,8 +2,8 @@ import {
   LoadPostsResponseEntity,
   PostEntity
 } from '../../../domain/entities/posts'
-import { ServerError } from '../../errors'
-import { ok, serverError } from '../../helpers/http'
+import { MissingParamError, ServerError } from '../../errors'
+import { badRequest, ok, serverError } from '../../helpers/http'
 
 import faker from 'faker'
 import { LoadPostsByUidController } from './load-posts-by-uid-controller'
@@ -96,6 +96,17 @@ describe('LoadPostsByUidController', () => {
       const validateSpy = jest.spyOn(validationStub, 'validate')
       await sut.handle(request)
       expect(validateSpy).toHaveBeenCalledWith(request.body)
+    })
+
+    test('Shoud return 400 if Validation returns an error', async () => {
+      const { sut, validationStub } = makeSut()
+      jest
+        .spyOn(validationStub, 'validate')
+        .mockReturnValueOnce(new MissingParamError('any_field'))
+      const httpResponse = await sut.handle(request)
+      expect(httpResponse).toEqual(
+        badRequest(new MissingParamError('any_field'))
+      )
     })
   })
 })
