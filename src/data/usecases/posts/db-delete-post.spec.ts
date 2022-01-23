@@ -3,7 +3,10 @@ import { DBDeletePost } from './db-delete-post'
 
 import faker from 'faker'
 import { CheckPostExistsResponseModel } from '../../models/posts'
-import { DeletePostRequestEntity } from '../../../domain/entities/posts'
+import {
+  DeletePostRequestEntity,
+  DeletePostResponseEntity
+} from '../../../domain/entities/posts'
 import { DeletePostByIdRepository } from '../../protocols/db/posts/delete-post-repository'
 
 interface SutTypes {
@@ -19,6 +22,10 @@ const id = faker.datatype.uuid()
 
 const request: DeletePostRequestEntity = { id, uid }
 
+const responseMessage: DeletePostResponseEntity = {
+  message: 'Post deleted succesfully'
+}
+
 const checkPostExistsResponseModel: CheckPostExistsResponseModel = {
   id,
   title,
@@ -28,8 +35,9 @@ const checkPostExistsResponseModel: CheckPostExistsResponseModel = {
 
 const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
   class CheckPostExistsByIdRepositoryStub
-  implements CheckPostExistsByIdRepository {
-    async checkById (id: string): Promise<CheckPostExistsResponseModel> {
+    implements CheckPostExistsByIdRepository
+  {
+    async checkById(id: string): Promise<CheckPostExistsResponseModel> {
       return await Promise.resolve(checkPostExistsResponseModel)
     }
   }
@@ -38,7 +46,7 @@ const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
 
 const makeDeletePostByIdRepository = (): DeletePostByIdRepository => {
   class DeletePostByIdRepositoryStub implements DeletePostByIdRepository {
-    async deleteById (id: string): Promise<void> {
+    async deleteById(id: string): Promise<void> {
       return await Promise.resolve()
     }
   }
@@ -96,5 +104,31 @@ describe('DBDeletePost', () => {
       const promise = sut.delete(request)
       await expect(promise).rejects.toThrow()
     })
+  })
+
+  test('Should return a message on success', async () => {
+    const { sut } = makeSut()
+    const result = await sut.delete(request)
+    expect(result).toEqual(responseMessage)
+  })
+
+  test('Should return a not found if post dont exist', async () => {
+    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+    jest
+      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
+      .mockReturnValueOnce(Promise.resolve(null))
+    const result = await sut.delete(request)
+    expect(result).toEqual({ error: 'not_found' })
+  })
+
+  test('Should return a forbidden if post dont belongs to the user', async () => {
+    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+    jest
+      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
+      .mockReturnValueOnce(
+        Promise.resolve(checkPostExistsResponseModelWithOtherUid)
+      )
+    const result = await sut.update(request)
+    expect(result).toEqual({ error: 'forbidden' })
   })
 })
