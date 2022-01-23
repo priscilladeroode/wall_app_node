@@ -13,16 +13,14 @@ type SutTypes = {
   sut: LoadPostsByUidController
   loadPostsByUidUseCaseStub: LoadPostsByUidUseCase
 }
-
-const request = {
-  body: {}
-}
-
+const uid = faker.datatype.uuid()
 const title = faker.lorem.sentence()
 const content = faker.lorem.paragraphs()
 const id = faker.datatype.uuid()
 const createdAt = faker.datatype.datetime()
 const createdBy = faker.name.findName()
+
+const request = { body: { uid } }
 
 const postEntity: PostEntity = { id, title, content, createdAt, createdBy }
 
@@ -61,7 +59,7 @@ describe('LoadPostsByUidController', () => {
     expect(httpResponse).toEqual(serverError(new ServerError(null)))
   })
 
-  test('Shoud return 200 if LoadAllPostsUseCase returns posts', async () => {
+  test('Shoud return 200 if LoadPostsByUidUseCase returns posts', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(ok(loadPostsResponseEntity))
