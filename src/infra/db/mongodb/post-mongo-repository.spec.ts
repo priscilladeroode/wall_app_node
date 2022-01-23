@@ -112,4 +112,48 @@ describe('User Mongo Repository', () => {
       expect(result).toStrictEqual([])
     })
   })
+
+  describe('loadByUid', () => {
+    test('Should return a list of posts of the user on descending order on success', async () => {
+      const sut = makeSut()
+      const user1 = {
+        name,
+        email,
+        password,
+        accessToken
+      }
+      const user2 = {
+        name: name2,
+        email: email2,
+        password: password2,
+        accessToken: accessToken2
+      }
+      const userId = await usersCollection.insertMany([user1, user2])
+      const id1 = userId.insertedIds[0].toHexString()
+      const id2 = userId.insertedIds[1].toHexString()
+
+      const post1 = {
+        title,
+        content,
+        uid: new ObjectId(id1)
+      }
+      const post2 = {
+        title: title2,
+        content: content2,
+        uid: new ObjectId(id2)
+      }
+      await postsCollection.insertMany([post1, post2])
+
+      const result = await sut.loadByUid({ uid: id1 })
+      expect(result).toBeTruthy()
+      expect(result.length).toBe(1)
+      expect(result[0].id).toBeTruthy()
+      expect(result[0].title).toBe(title)
+      expect(result[0].content).toBe(content)
+      expect(result[0].createdBy).toBe(name)
+      expect(result[0].createdAt).toStrictEqual(
+        userId.insertedIds[0].getTimestamp()
+      )
+    })
+  })
 })
