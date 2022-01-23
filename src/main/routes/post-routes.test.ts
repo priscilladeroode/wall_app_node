@@ -21,6 +21,9 @@ let accessToken: string
 const title = faker.lorem.sentence()
 const content = faker.lorem.paragraphs()
 
+const title2 = faker.lorem.sentence()
+const content2 = faker.lorem.paragraphs()
+
 describe('Posts Routes', () => {
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL)
@@ -78,6 +81,25 @@ describe('Posts Routes', () => {
     test('Should return a 200 on load user post', async () => {
       await postsCollection.insertOne({ title, content, uid: id })
       await request(app).get('/api/postsByUser/id').expect(200)
+    })
+  })
+
+  describe('/PUT post', () => {
+    test('Should return a 200 on update', async () => {
+      const postId = await postsCollection.insertOne({
+        title,
+        content,
+        uid: id
+      })
+      await request(app)
+        .put('/api/posts/id')
+        .set('x-access-token', accessToken)
+        .send({
+          title: title2,
+          content: content2,
+          id: postId.insertedId.toHexString()
+        })
+        .expect(200)
     })
   })
 })
