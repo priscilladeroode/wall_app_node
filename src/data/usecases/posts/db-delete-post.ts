@@ -2,6 +2,7 @@ import {
   DeletePostRequestEntity,
   DeletePostResponseEntity
 } from '../../../domain/entities/posts'
+import { ResultEnum } from '../../../domain/enums/result-enums'
 import { DeletePostUseCase } from '../../../domain/usecases/posts/delete-post-usecase'
 import { CheckPostExistsByIdRepository } from '../../protocols/db/posts/check-post-exists-by-id'
 import { DeletePostByIdRepository } from '../../protocols/db/posts/delete-post-repository'
@@ -19,10 +20,10 @@ export class DBDeletePost implements DeletePostUseCase {
     if (post) {
       if (post.uid === entity.uid) {
         await this.deletePostByIdRepository.deleteById(entity.id)
-        return { message: 'Post deleted succesfully' }
+        return ResultEnum.success
       }
-      return { error: 'forbidden' }
+      return ResultEnum.forbidden
     }
-    return { error: 'not_found' }
+    return ResultEnum.notFound
   }
 }

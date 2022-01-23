@@ -1,1 +1,3 @@
-export type DeletePostResponseEntity = { message: string } | { error: string }
+import { ResultEnum } from '../../enums/result-enums'
+
+export type DeletePostResponseEntity = ResultEnum
