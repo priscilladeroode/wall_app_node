@@ -5,6 +5,7 @@ import { DeletePostController } from './delete-post-controller'
 import faker from 'faker'
 import { MissingParamError, ServerError } from '../../errors'
 import { badRequest, serverError } from '../../helpers/http'
+import { DeletePostRequestEntity } from '../../../domain/entities/posts'
 type SutTypes = {
   sut: DeletePostController
   validationStub: Validation
@@ -21,6 +22,8 @@ const deletePostResponseEntity: DeletePostResponseEntity = {
   message: 'Post deleted succesfully'
 }
 
+const deletePostRequestEntity: DeletePostRequestEntity = { id, uid }
+
 const makeValidation = (): Validation => {
   class ValidationStub implements Validation {
     validate (input: any): Error {
@@ -32,7 +35,9 @@ const makeValidation = (): Validation => {
 
 const makeDeletePostUseCase = (): DeletePostUseCase => {
   class DeletePostUseCaseStub implements DeletePostUseCase {
-    async delete (postId: string): Promise<DeletePostResponseEntity> {
+    async delete (
+      entity: DeletePostRequestEntity
+    ): Promise<DeletePostResponseEntity> {
       return await Promise.resolve(deletePostResponseEntity)
     }
   }
@@ -79,6 +84,15 @@ describe('UpdatePostController', () => {
       jest.spyOn(validationStub, 'validate').mockImplementationOnce(throwError)
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
+    })
+  })
+
+  describe('DeletePostUseCase', () => {
+    test('Shoud call DeletePostUseCase with correct values', async () => {
+      const { sut, deletePostUseCaseStub } = makeSut()
+      const updateSpy = jest.spyOn(deletePostUseCaseStub, 'delete')
+      await sut.handle(request)
+      expect(updateSpy).toHaveBeenCalledWith(deletePostRequestEntity)
     })
   })
 })
