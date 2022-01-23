@@ -2,11 +2,13 @@ import { ObjectId } from 'mongodb'
 import {
   AddPostRequestModel,
   AddPostResponseModel,
+  CheckPostExistsResponseModel,
   LoadPostsByUidRequestModel,
   LoadPostsResponseModel,
   PostModel
 } from '../../../data/models/posts'
 import { AddPostRepository } from '../../../data/protocols/db/posts/add-post-repository'
+import { CheckPostExistsByIdRepository } from '../../../data/protocols/db/posts/check-post-exists-by-id'
 import { LoadAllPostsRepository } from '../../../data/protocols/db/posts/load-all-posts-repository'
 import { LoadPostByIdRepository } from '../../../data/protocols/db/posts/load-post-by-id-respository'
 import { LoadPostsByUidRepository } from '../../../data/protocols/db/posts/load-posts-by-uid-repository'
@@ -18,7 +20,8 @@ implements
     AddPostRepository,
     LoadAllPostsRepository,
     LoadPostsByUidRepository,
-    LoadPostByIdRepository {
+    LoadPostByIdRepository,
+    CheckPostExistsByIdRepository {
   async add (post: AddPostRequestModel): Promise<AddPostResponseModel> {
     const collection = MongoHelper.getCollection('posts')
     const inserted = await collection.insertOne(post)
@@ -114,9 +117,12 @@ implements
       .build()
 
     const result = await collection.aggregate(query).toArray()
-    if (result.length > 0) {
-      return MongoHelper.map(result[0])
-    }
-    return null
+    return result.length > 0 ? MongoHelper.map(result[0]) : null
+  }
+
+  async checkById (id: string): Promise<CheckPostExistsResponseModel> {
+    const collection = MongoHelper.getCollection('posts')
+    const result = await collection.findOne({ _id: new ObjectId(id) })
+    return result ? MongoHelper.map(result) : null
   }
 }
