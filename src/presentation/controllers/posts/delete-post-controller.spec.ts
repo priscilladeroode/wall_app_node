@@ -4,7 +4,7 @@ import { Validation } from '../../protocols/validation'
 import { DeletePostController } from './delete-post-controller'
 import faker from 'faker'
 import { MissingParamError, ServerError } from '../../errors'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, ok, serverError } from '../../helpers/http'
 import { DeletePostRequestEntity } from '../../../domain/entities/posts'
 type SutTypes = {
   sut: DeletePostController
@@ -105,5 +105,11 @@ describe('UpdatePostController', () => {
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
+  })
+
+  test('Shoud return 200 if post is deleted', async () => {
+    const { sut } = makeSut()
+    const httpResponse = await sut.handle(request)
+    expect(httpResponse).toEqual(ok(deletePostResponseEntity))
   })
 })
