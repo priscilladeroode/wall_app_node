@@ -10,6 +10,7 @@ import {
 } from '../../../data/models/posts'
 import { AddPostRepository } from '../../../data/protocols/db/posts/add-post-repository'
 import { CheckPostExistsByIdRepository } from '../../../data/protocols/db/posts/check-post-exists-by-id'
+import { DeletePostByIdRepository } from '../../../data/protocols/db/posts/delete-post-repository'
 import { LoadAllPostsRepository } from '../../../data/protocols/db/posts/load-all-posts-repository'
 import { LoadPostByIdRepository } from '../../../data/protocols/db/posts/load-post-by-id-respository'
 import { LoadPostsByUidRepository } from '../../../data/protocols/db/posts/load-posts-by-uid-repository'
@@ -24,7 +25,8 @@ implements
     LoadPostsByUidRepository,
     LoadPostByIdRepository,
     CheckPostExistsByIdRepository,
-    UpdatePostRepository {
+    UpdatePostRepository,
+    DeletePostByIdRepository {
   async add (post: AddPostRequestModel): Promise<AddPostResponseModel> {
     const collection = MongoHelper.getCollection('posts')
     const inserted = await collection.insertOne(post)
@@ -141,5 +143,10 @@ implements
         }
       }
     )
+  }
+
+  async deleteById (id: string): Promise<void> {
+    const collection = MongoHelper.getCollection('posts')
+    await collection.deleteOne({ _id: new ObjectId(id) })
   }
 }
