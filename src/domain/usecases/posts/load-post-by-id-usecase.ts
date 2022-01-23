@@ -1,5 +1,5 @@
 import { PostEntity } from '../../entities/posts'
 
-export interface LoadPostsByIdUseCase {
+export interface LoadPostByIdUseCase {
   loadById: (id: string) => Promise<PostEntity>
 }
