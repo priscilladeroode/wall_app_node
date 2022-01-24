@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { SendWelcomeEmailRepository } from '../../data/protocols/services/send-welcome-email-repository'
 import env from '@/main/config/env'
+import { SendWelcomeEmailRequestModel } from '@/data/models/services/send-welcome-email-request-model'
 
 const headers = {
   Authorization: `Bearer ${env.sendGrid}`,
@@ -8,7 +9,7 @@ const headers = {
 }
 
 export class SendGridEmailRepository implements SendWelcomeEmailRepository {
-  async send (email: string, name: string): Promise<void> {
+  async send (model: SendWelcomeEmailRequestModel): Promise<void> {
     await axios.post(
       'https://api.sendgrid.com/v3/mail/send',
       {
@@ -19,11 +20,11 @@ export class SendGridEmailRepository implements SendWelcomeEmailRepository {
           {
             to: [
               {
-                email: email
+                email: model.email
               }
             ],
             dynamic_template_data: {
-              name: name
+              name: model.name
             }
           }
         ],

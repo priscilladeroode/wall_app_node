@@ -1,79 +1,50 @@
 import faker from 'faker'
 
-import { AddPostRequestModel, AddPostResponseModel } from '@/data/models/posts'
-import { AddPostRepository } from '@/data/protocols/db/posts/add-post-repository'
-import {
-  AddPostRequestEntity,
-  AddPostResponseEntity
-} from '@/domain/entities/posts'
+import { AddPostRequestEntity } from '@/domain/entities/posts'
 import { DBAddPost } from '@/data/usecases/posts/db-add-post'
+import { AddPostRepositorySpy } from '../../mocks/mock-posts'
+import { throwError } from '@/tests/domain/mocks'
 
 interface SutTypes {
   sut: DBAddPost
-  addPostRepositoryStub: AddPostRepository
+  addPostRepositorySpy: AddPostRepositorySpy
 }
-
-const title = faker.lorem.sentence()
-const content = faker.lorem.paragraphs()
-const uid = faker.datatype.uuid()
-const id = faker.datatype.uuid()
 
 const request: AddPostRequestEntity = {
-  title,
-  content,
-  uid
-}
-
-const response: AddPostResponseEntity = { id }
-
-const addPostRequest: AddPostRequestModel = {
-  title,
-  content,
-  uid
-}
-
-const addPostResponse: AddPostResponseModel = { id }
-
-const makeAddPostRepository = (): AddPostRepository => {
-  class AddPostRepositoryStub implements AddPostRepository {
-    async add (post: AddPostRequestModel): Promise<AddPostResponseModel> {
-      return await Promise.resolve(addPostResponse)
-    }
-  }
-  return new AddPostRepositoryStub()
+  title: faker.lorem.sentence(),
+  content: faker.lorem.paragraphs(),
+  uid: faker.datatype.uuid()
 }
 
 const makeSut = (): SutTypes => {
-  const addPostRepositoryStub = makeAddPostRepository()
-  const sut = new DBAddPost(addPostRepositoryStub)
+  const addPostRepositorySpy = new AddPostRepositorySpy()
+  const sut = new DBAddPost(addPostRepositorySpy)
   return {
     sut,
-    addPostRepositoryStub
+    addPostRepositorySpy
   }
 }
 
 describe('AddPostUseCase', () => {
   describe('AddPostRepository', () => {
     test('Should call AddPostRepository with correct values', async () => {
-      const { sut, addPostRepositoryStub } = makeSut()
-      const addSpy = jest.spyOn(addPostRepositoryStub, 'add')
+      const { sut, addPostRepositorySpy } = makeSut()
+      const addSpy = jest.spyOn(addPostRepositorySpy, 'add')
       await sut.add(request)
-      expect(addSpy).toHaveBeenCalledWith(addPostRequest)
+      expect(addSpy).toHaveBeenCalledWith(request)
     })
 
     test('Should throw if AddPostRepository throws', async () => {
-      const { sut, addPostRepositoryStub } = makeSut()
-      jest
-        .spyOn(addPostRepositoryStub, 'add')
-        .mockReturnValueOnce(Promise.reject(new Error()))
+      const { sut, addPostRepositorySpy } = makeSut()
+      jest.spyOn(addPostRepositorySpy, 'add').mockImplementationOnce(throwError)
       const promise = sut.add(request)
       await expect(promise).rejects.toThrow()
     })
   })
 
   test('Should return an id on success', async () => {
-    const { sut } = makeSut()
+    const { sut, addPostRepositorySpy } = makeSut()
     const result = await sut.add(request)
-    expect(result).toEqual(response)
+    expect(result).toEqual(addPostRepositorySpy.result)
   })
 })

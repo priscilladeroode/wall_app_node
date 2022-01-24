@@ -1,134 +1,67 @@
 import faker from 'faker'
-import {
-  CheckPostExistsResponseModel,
-  LoadPostByIdRequestModel,
-  LoadPostByIdResponseModel,
-  PostModel,
-  UpdatePostRequestModel
-} from '@/data/models/posts'
+
 import { UpdatePostRequestEntity } from '@/domain/entities/posts'
-import { UpdatePostRepository } from '@/data/protocols/db/posts/update-post-repository'
 import { DBUpdatePost } from '@/data/usecases/posts/db-update-post'
-import { CheckPostExistsByIdRepository } from '@/data/protocols/db/posts/check-post-exists-by-id'
-import { LoadPostByIdRepository } from '@/data/protocols/db/posts/load-post-by-id-respository'
 import { ResultEnum } from '@/domain/enums/result-enums'
+import {
+  CheckPostExistsByIdRepositorySpy,
+  LoadPostByIdRepositorySpy,
+  UpdatePostRepositorySpy
+} from '../../mocks/mock-posts'
+import { throwError } from '@/tests/domain/mocks'
 
 interface SutTypes {
   sut: DBUpdatePost
-  checkPostExistsByIdRepositoryStub: CheckPostExistsByIdRepository
-  updatePostRepositoryStub: UpdatePostRepository
-  loadPostByIdRepositoryStub: LoadPostByIdRepository
+  checkPostExistsByIdRepositorySpy: CheckPostExistsByIdRepositorySpy
+  updatePostRepositorySpy: UpdatePostRepositorySpy
+  loadPostByIdRepositorySpy: LoadPostByIdRepositorySpy
 }
-
-const title = faker.lorem.sentence()
-const content = faker.lorem.paragraphs()
-const uid = faker.datatype.uuid()
-const id = faker.datatype.uuid()
-const createdBy = faker.name.findName()
-const createdAt = faker.datatype.datetime()
-const uidOtherUser = faker.datatype.uuid()
 
 const request: UpdatePostRequestEntity = {
-  id,
-  title,
-  content,
-  uid
-}
-
-const updatePostRequestModel: UpdatePostRequestModel = {
-  id,
-  title,
-  content,
-  uid
-}
-
-const checkPostExistsResponseModel: CheckPostExistsResponseModel = {
-  id,
-  title,
-  content,
-  uid
-}
-
-const checkPostExistsResponseModelWithOtherUid: CheckPostExistsResponseModel = {
-  id,
-  title,
-  content,
-  uid: uidOtherUser
-}
-
-const loadPostByIdRequestModel: LoadPostByIdRequestModel = id
-
-const post: PostModel = {
-  id,
-  title,
-  content,
-  createdBy,
-  createdAt
-}
-
-const loadPostByIdResponseModel: LoadPostByIdResponseModel = post
-
-const makeUpdatePostRepository = (): UpdatePostRepository => {
-  class UpdatePostRepositoryStub implements UpdatePostRepository {
-    async update (post: UpdatePostRequestModel): Promise<void> {
-      return await Promise.resolve()
-    }
-  }
-  return new UpdatePostRepositoryStub()
-}
-
-const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
-  class CheckPostExistsByIdRepositoryStub
-  implements CheckPostExistsByIdRepository {
-    async checkById (id: string): Promise<CheckPostExistsResponseModel> {
-      return await Promise.resolve(checkPostExistsResponseModel)
-    }
-  }
-  return new CheckPostExistsByIdRepositoryStub()
-}
-
-const makeLoadPostByIdRepository = (): LoadPostByIdRepository => {
-  class LoadPostByIdRepositoryStub implements LoadPostByIdRepository {
-    async loadById (
-      model: LoadPostByIdRequestModel
-    ): Promise<LoadPostByIdResponseModel> {
-      return await Promise.resolve(loadPostByIdResponseModel)
-    }
-  }
-  return new LoadPostByIdRepositoryStub()
+  title: faker.lorem.sentence(),
+  content: faker.lorem.paragraphs(),
+  uid: faker.datatype.uuid(),
+  id: faker.datatype.uuid()
 }
 
 const makeSut = (): SutTypes => {
-  const loadPostByIdRepositoryStub = makeLoadPostByIdRepository()
-  const checkPostExistsByIdRepositoryStub = makeCheckPostExistsByIdRepository()
-  const updatePostRepositoryStub = makeUpdatePostRepository()
+  const loadPostByIdRepositorySpy = new LoadPostByIdRepositorySpy()
+  const checkPostExistsByIdRepositorySpy =
+    new CheckPostExistsByIdRepositorySpy()
+  const updatePostRepositorySpy = new UpdatePostRepositorySpy()
   const sut = new DBUpdatePost(
-    loadPostByIdRepositoryStub,
-    checkPostExistsByIdRepositoryStub,
-    updatePostRepositoryStub
+    loadPostByIdRepositorySpy,
+    checkPostExistsByIdRepositorySpy,
+    updatePostRepositorySpy
   )
   return {
     sut,
-    checkPostExistsByIdRepositoryStub,
-    updatePostRepositoryStub,
-    loadPostByIdRepositoryStub
+    checkPostExistsByIdRepositorySpy,
+    updatePostRepositorySpy,
+    loadPostByIdRepositorySpy
   }
 }
 
 describe('DBUpdatePost', () => {
   describe('UpdatePostRepository', () => {
     test('Should call UpdatePostRepository with correct values', async () => {
-      const { sut, updatePostRepositoryStub } = makeSut()
-      const addSpy = jest.spyOn(updatePostRepositoryStub, 'update')
+      const { sut, updatePostRepositorySpy, checkPostExistsByIdRepositorySpy } =
+        makeSut()
+      checkPostExistsByIdRepositorySpy.result.id = request.id
+      checkPostExistsByIdRepositorySpy.result.uid = request.uid
+      const addSpy = jest.spyOn(updatePostRepositorySpy, 'update')
       await sut.update(request)
-      expect(addSpy).toHaveBeenCalledWith(updatePostRequestModel)
+      expect(addSpy).toHaveBeenCalledWith(request)
     })
 
     test('Should throw if UpdatePostRepository throws', async () => {
-      const { sut, updatePostRepositoryStub } = makeSut()
+      const { sut, updatePostRepositorySpy, checkPostExistsByIdRepositorySpy } =
+        makeSut()
+      checkPostExistsByIdRepositorySpy.result.id = request.id
+      checkPostExistsByIdRepositorySpy.result.uid = request.uid
       jest
-        .spyOn(updatePostRepositoryStub, 'update')
-        .mockReturnValueOnce(Promise.reject(new Error()))
+        .spyOn(updatePostRepositorySpy, 'update')
+        .mockImplementationOnce(throwError)
       const promise = sut.update(request)
       await expect(promise).rejects.toThrow()
     })
@@ -136,20 +69,20 @@ describe('DBUpdatePost', () => {
 
   describe('CheckPostExistsByIdRepository', () => {
     test('Should call CheckPostExistsByIdRepository with correct values', async () => {
-      const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+      const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
       const checkByIdSpy = jest.spyOn(
-        checkPostExistsByIdRepositoryStub,
+        checkPostExistsByIdRepositorySpy,
         'checkById'
       )
       await sut.update(request)
-      expect(checkByIdSpy).toHaveBeenCalledWith(id)
+      expect(checkByIdSpy).toHaveBeenCalledWith(request.id)
     })
 
     test('Should throw if CheckPostExistsByIdRepository throws', async () => {
-      const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+      const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
       jest
-        .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
-        .mockReturnValueOnce(Promise.reject(new Error()))
+        .spyOn(checkPostExistsByIdRepositorySpy, 'checkById')
+        .mockImplementationOnce(throwError)
       const promise = sut.update(request)
       await expect(promise).rejects.toThrow()
     })
@@ -157,44 +90,52 @@ describe('DBUpdatePost', () => {
 
   describe('LoadPostByIdRepository', () => {
     test('Should call loadPostByIdRepository with correct values', async () => {
-      const { sut, loadPostByIdRepositoryStub } = makeSut()
-      const checkByIdSpy = jest.spyOn(loadPostByIdRepositoryStub, 'loadById')
+      const {
+        sut,
+        loadPostByIdRepositorySpy,
+        checkPostExistsByIdRepositorySpy
+      } = makeSut()
+      checkPostExistsByIdRepositorySpy.result.id = request.id
+      checkPostExistsByIdRepositorySpy.result.uid = request.uid
+      const checkByIdSpy = jest.spyOn(loadPostByIdRepositorySpy, 'loadById')
       await sut.update(request)
-      expect(checkByIdSpy).toHaveBeenCalledWith(loadPostByIdRequestModel)
+      expect(checkByIdSpy).toHaveBeenCalledWith(request.id)
     })
 
     test('Should throw if loadPostByIdRepository throws', async () => {
-      const { sut, loadPostByIdRepositoryStub } = makeSut()
+      const {
+        sut,
+        loadPostByIdRepositorySpy,
+        checkPostExistsByIdRepositorySpy
+      } = makeSut()
+      checkPostExistsByIdRepositorySpy.result.id = request.id
+      checkPostExistsByIdRepositorySpy.result.uid = request.uid
       jest
-        .spyOn(loadPostByIdRepositoryStub, 'loadById')
-        .mockReturnValueOnce(Promise.reject(new Error()))
+        .spyOn(loadPostByIdRepositorySpy, 'loadById')
+        .mockImplementationOnce(throwError)
       const promise = sut.update(request)
       await expect(promise).rejects.toThrow()
     })
   })
 
   test('Should return a post on success', async () => {
-    const { sut } = makeSut()
+    const { sut, loadPostByIdRepositorySpy, checkPostExistsByIdRepositorySpy } =
+      makeSut()
+    checkPostExistsByIdRepositorySpy.result.id = request.id
+    checkPostExistsByIdRepositorySpy.result.uid = request.uid
     const result = await sut.update(request)
-    expect(result).toEqual(loadPostByIdResponseModel)
+    expect(result).toEqual(loadPostByIdRepositorySpy.result)
   })
 
   test('Should return a not found if post dont exist', async () => {
-    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
-    jest
-      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
-      .mockReturnValueOnce(Promise.resolve(null))
+    const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
+    checkPostExistsByIdRepositorySpy.result = null
     const result = await sut.update(request)
     expect(result).toEqual(ResultEnum.notFound)
   })
 
   test('Should return a forbidden if post dont belongs to the user', async () => {
-    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
-    jest
-      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
-      .mockReturnValueOnce(
-        Promise.resolve(checkPostExistsResponseModelWithOtherUid)
-      )
+    const { sut } = makeSut()
     const result = await sut.update(request)
     expect(result).toEqual(ResultEnum.forbidden)
   })

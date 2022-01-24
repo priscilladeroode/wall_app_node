@@ -1,134 +1,111 @@
 import faker from 'faker'
 
-import { CheckPostExistsByIdRepository } from '@/data/protocols/db/posts/check-post-exists-by-id'
 import { DBDeletePostById } from '@/data/usecases/posts/db-delete-post-by-id'
-import { CheckPostExistsResponseModel } from '@/data/models/posts'
 import { DeletePostRequestEntity } from '@/domain/entities/posts'
-import { DeletePostByIdRepository } from '@/data/protocols/db/posts/delete-post-repository'
 import { ResultEnum } from '@/domain/enums/result-enums'
+import {
+  CheckPostExistsByIdRepositorySpy,
+  DeletePostByIdRepositorySpy
+} from '../../mocks/mock-posts'
+import { throwError } from '@/tests/domain/mocks'
 
 interface SutTypes {
   sut: DBDeletePostById
-  checkPostExistsByIdRepositoryStub: CheckPostExistsByIdRepository
-  deletePostByIdRepository: DeletePostByIdRepository
+  checkPostExistsByIdRepositorySpy: CheckPostExistsByIdRepositorySpy
+  deletePostByIdRepositorySpy: DeletePostByIdRepositorySpy
 }
 
-const title = faker.lorem.sentence()
-const content = faker.lorem.paragraphs()
-const uid = faker.datatype.uuid()
-const id = faker.datatype.uuid()
-const uidOtherUser = faker.datatype.uuid()
-
-const request: DeletePostRequestEntity = { id, uid }
-
-const checkPostExistsResponseModel: CheckPostExistsResponseModel = {
-  id,
-  title,
-  content,
-  uid
-}
-
-const checkPostExistsResponseModelWithOtherUid: CheckPostExistsResponseModel = {
-  id,
-  title,
-  content,
-  uid: uidOtherUser
-}
-
-const makeCheckPostExistsByIdRepository = (): CheckPostExistsByIdRepository => {
-  class CheckPostExistsByIdRepositoryStub
-  implements CheckPostExistsByIdRepository {
-    async checkById (id: string): Promise<CheckPostExistsResponseModel> {
-      return await Promise.resolve(checkPostExistsResponseModel)
-    }
-  }
-  return new CheckPostExistsByIdRepositoryStub()
-}
-
-const makeDeletePostByIdRepository = (): DeletePostByIdRepository => {
-  class DeletePostByIdRepositoryStub implements DeletePostByIdRepository {
-    async deleteById (id: string): Promise<void> {
-      return await Promise.resolve()
-    }
-  }
-  return new DeletePostByIdRepositoryStub()
+const request: DeletePostRequestEntity = {
+  uid: faker.datatype.uuid(),
+  id: faker.datatype.uuid()
 }
 
 const makeSut = (): SutTypes => {
-  const checkPostExistsByIdRepositoryStub = makeCheckPostExistsByIdRepository()
-  const deletePostByIdRepository = makeDeletePostByIdRepository()
+  const checkPostExistsByIdRepositorySpy =
+    new CheckPostExistsByIdRepositorySpy()
+  const deletePostByIdRepositorySpy = new DeletePostByIdRepositorySpy()
   const sut = new DBDeletePostById(
-    checkPostExistsByIdRepositoryStub,
-    deletePostByIdRepository
+    checkPostExistsByIdRepositorySpy,
+    deletePostByIdRepositorySpy
   )
   return {
     sut,
-    checkPostExistsByIdRepositoryStub,
-    deletePostByIdRepository
+    checkPostExistsByIdRepositorySpy,
+    deletePostByIdRepositorySpy
   }
 }
 
 describe('DBDeletePost', () => {
   describe('CheckPostExistsByIdRepository', () => {
     test('Should call CheckPostExistsByIdRepository with correct values', async () => {
-      const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+      const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
       const checkByIdSpy = jest.spyOn(
-        checkPostExistsByIdRepositoryStub,
+        checkPostExistsByIdRepositorySpy,
         'checkById'
       )
       await sut.delete(request)
-      expect(checkByIdSpy).toHaveBeenCalledWith(id)
+      expect(checkByIdSpy).toHaveBeenCalledWith(request.id)
     })
 
     test('Should throw if CheckPostExistsByIdRepository throws', async () => {
-      const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
+      const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
       jest
-        .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
-        .mockReturnValueOnce(Promise.reject(new Error()))
+        .spyOn(checkPostExistsByIdRepositorySpy, 'checkById')
+        .mockImplementationOnce(throwError)
       const promise = sut.delete(request)
       await expect(promise).rejects.toThrow()
     })
   })
   describe('DeletePostByIdRepository', () => {
     test('Should call DeletePostByIdRepository with correct values', async () => {
-      const { sut, deletePostByIdRepository } = makeSut()
-      const checkByIdSpy = jest.spyOn(deletePostByIdRepository, 'deleteById')
+      const {
+        sut,
+        deletePostByIdRepositorySpy,
+        checkPostExistsByIdRepositorySpy
+      } = makeSut()
+      checkPostExistsByIdRepositorySpy.result.id = request.id
+      checkPostExistsByIdRepositorySpy.result.uid = request.uid
+      const checkByIdSpy = jest.spyOn(deletePostByIdRepositorySpy, 'deleteById')
       await sut.delete(request)
-      expect(checkByIdSpy).toHaveBeenCalledWith(request.id)
+      expect(checkByIdSpy).toHaveBeenCalledWith(
+        checkPostExistsByIdRepositorySpy.params
+      )
     })
 
     test('Should throw if DeletePostByIdRepository throws', async () => {
-      const { sut, deletePostByIdRepository } = makeSut()
+      const {
+        sut,
+        deletePostByIdRepositorySpy,
+        checkPostExistsByIdRepositorySpy
+      } = makeSut()
+      checkPostExistsByIdRepositorySpy.result.id = request.id
+      checkPostExistsByIdRepositorySpy.result.uid = request.uid
       jest
-        .spyOn(deletePostByIdRepository, 'deleteById')
-        .mockReturnValueOnce(Promise.reject(new Error()))
+        .spyOn(deletePostByIdRepositorySpy, 'deleteById')
+        .mockImplementationOnce(throwError)
       const promise = sut.delete(request)
       await expect(promise).rejects.toThrow()
     })
   })
 
   test('Should return a message on success', async () => {
-    const { sut } = makeSut()
+    const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
+    checkPostExistsByIdRepositorySpy.result.id = request.id
+    checkPostExistsByIdRepositorySpy.result.uid = request.uid
     const result = await sut.delete(request)
     expect(result).toEqual(ResultEnum.success)
   })
 
   test('Should return a not found if post dont exist', async () => {
-    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
-    jest
-      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
-      .mockReturnValueOnce(Promise.resolve(null))
+    const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
+    checkPostExistsByIdRepositorySpy.result = null
     const result = await sut.delete(request)
     expect(result).toEqual(ResultEnum.notFound)
   })
 
   test('Should return a forbidden if post dont belongs to the user', async () => {
-    const { sut, checkPostExistsByIdRepositoryStub } = makeSut()
-    jest
-      .spyOn(checkPostExistsByIdRepositoryStub, 'checkById')
-      .mockReturnValueOnce(
-        Promise.resolve(checkPostExistsResponseModelWithOtherUid)
-      )
+    const { sut, checkPostExistsByIdRepositorySpy } = makeSut()
+    checkPostExistsByIdRepositorySpy.result.uid = faker.datatype.uuid()
     const result = await sut.delete(request)
     expect(result).toEqual(ResultEnum.forbidden)
   })

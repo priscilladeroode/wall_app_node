@@ -28,7 +28,10 @@ export class DBAddAccount implements AddAccount {
         Object.assign({}, accountData, { password: hashedPassword })
       )
       if (account.registered) {
-        await this.sendEmail.send(accountData.email, accountData.name)
+        await this.sendEmail.send({
+          email: accountData.email,
+          name: accountData.name
+        })
       }
       return account
     }

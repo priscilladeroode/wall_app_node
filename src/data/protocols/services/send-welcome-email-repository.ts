@@ -1,3 +1,5 @@
+import { SendWelcomeEmailRequestModel } from '@/data/models/services/send-welcome-email-request-model'
+
 export interface SendWelcomeEmailRepository {
-  send: (email: string, name: string) => Promise<void>
+  send: (model: SendWelcomeEmailRequestModel) => Promise<void>
 }

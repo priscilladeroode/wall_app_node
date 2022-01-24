@@ -23,14 +23,14 @@ const name = faker.name.findName()
 describe('Send Grid Email Repository', () => {
   test('Should not return on success', async () => {
     const sut = makeSut()
-    const result = await sut.send(email, name)
+    const result = await sut.send({ email, name })
     expect(result).toBeFalsy()
   })
 
   test('Should throw if axios throw', async () => {
     const sut = makeSut()
     jest.spyOn(axios, 'post').mockImplementationOnce(throwError)
-    const promise = sut.send(email, name)
+    const promise = sut.send({ email, name })
     await expect(promise).rejects.toThrow()
   })
 })
