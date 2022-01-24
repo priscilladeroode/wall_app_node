@@ -1,8 +1,6 @@
-import { DeletePostResponseEntity } from '@/domain/entities/posts/delete-post-response-entity'
-import { DeletePostByIdUseCase } from '@/domain/usecases/posts/delete-post-by-id-usecase'
-import { Validation } from '@/presentation/protocols/validation'
-import { DeletePostByIdController } from '@/presentation/controllers/posts/delete-post-by-id-controller'
 import faker from 'faker'
+
+import { DeletePostByIdController } from '@/presentation/controllers/posts/delete-post-by-id-controller'
 import {
   MissingParamError,
   NotFoundError,
@@ -16,44 +14,32 @@ import {
   ok,
   serverError
 } from '@/presentation/helpers/http'
-import { DeletePostRequestEntity } from '@/domain/entities/posts'
 import { ResultEnum } from '@/domain/enums/result-enums'
 import { throwError } from '@/tests/domain/mocks'
 import { ValidationSpy } from '../../mocks/mock-validation'
+import { DeletePostByIdUseCaseSpy } from '../../mocks/mock-post'
 
 type SutTypes = {
   sut: DeletePostByIdController
-  validationSpy: Validation
-  deletePostUseCaseStub: DeletePostByIdUseCase
+  validationSpy: ValidationSpy
+  deletePostByIdUseCaseSpy: DeletePostByIdUseCaseSpy
 }
 
-const id = faker.datatype.uuid()
-const uid = faker.datatype.uuid()
-const missingParam = faker.datatype.string()
-
-const request = { body: { id, uid } }
-
-const deletePostRequestEntity: DeletePostRequestEntity = { id, uid }
-
-const makeDeletePostUseCase = (): DeletePostByIdUseCase => {
-  class DeletePostUseCaseStub implements DeletePostByIdUseCase {
-    async delete (
-      entity: DeletePostRequestEntity
-    ): Promise<DeletePostResponseEntity> {
-      return await Promise.resolve(ResultEnum.success)
-    }
-  }
-  return new DeletePostUseCaseStub()
+const request = {
+  body: { id: faker.datatype.uuid(), uid: faker.datatype.uuid() }
 }
 
 const makeSut = (): SutTypes => {
   const validationSpy = new ValidationSpy()
-  const deletePostUseCaseStub = makeDeletePostUseCase()
-  const sut = new DeletePostByIdController(validationSpy, deletePostUseCaseStub)
+  const deletePostByIdUseCaseSpy = new DeletePostByIdUseCaseSpy()
+  const sut = new DeletePostByIdController(
+    validationSpy,
+    deletePostByIdUseCaseSpy
+  )
   return {
     sut,
     validationSpy,
-    deletePostUseCaseStub
+    deletePostByIdUseCaseSpy
   }
 }
 
@@ -68,13 +54,9 @@ describe('UpdatePostController', () => {
 
     test('Shoud return 400 if Validation returns an error', async () => {
       const { sut, validationSpy } = makeSut()
-      jest
-        .spyOn(validationSpy, 'validate')
-        .mockReturnValueOnce(new MissingParamError(missingParam))
+      validationSpy.error = new MissingParamError('any')
       const httpResponse = await sut.handle(request)
-      expect(httpResponse).toEqual(
-        badRequest(new MissingParamError(missingParam))
-      )
+      expect(httpResponse).toEqual(badRequest(validationSpy.error))
     })
 
     test('Shoud return 500 if Validation throws', async () => {
@@ -87,19 +69,17 @@ describe('UpdatePostController', () => {
 
   describe('DeletePostUseCase', () => {
     test('Shoud call DeletePostUseCase with correct values', async () => {
-      const { sut, deletePostUseCaseStub } = makeSut()
-      const updateSpy = jest.spyOn(deletePostUseCaseStub, 'delete')
+      const { sut, deletePostByIdUseCaseSpy } = makeSut()
+      const updateSpy = jest.spyOn(deletePostByIdUseCaseSpy, 'delete')
       await sut.handle(request)
-      expect(updateSpy).toHaveBeenCalledWith(deletePostRequestEntity)
+      expect(updateSpy).toHaveBeenCalledWith(request.body)
     })
 
     test('Shoud return 500 if DeletePostUseCase throws', async () => {
-      const { sut, deletePostUseCaseStub } = makeSut()
+      const { sut, deletePostByIdUseCaseSpy } = makeSut()
       jest
-        .spyOn(deletePostUseCaseStub, 'delete')
-        .mockImplementationOnce(async () => {
-          return await Promise.reject(new Error())
-        })
+        .spyOn(deletePostByIdUseCaseSpy, 'delete')
+        .mockImplementationOnce(throwError)
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
@@ -112,23 +92,15 @@ describe('UpdatePostController', () => {
   })
 
   test('Shoud return 404 if post cant be not found', async () => {
-    const { sut, deletePostUseCaseStub } = makeSut()
-    jest
-      .spyOn(deletePostUseCaseStub, 'delete')
-      .mockImplementationOnce(async () => {
-        return await Promise.resolve(ResultEnum.notFound)
-      })
+    const { sut, deletePostByIdUseCaseSpy } = makeSut()
+    deletePostByIdUseCaseSpy.result = ResultEnum.notFound
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(notFound(new NotFoundError(request.body.id)))
   })
 
   test('Shoud return 403 if post dont belong to the user', async () => {
-    const { sut, deletePostUseCaseStub } = makeSut()
-    jest
-      .spyOn(deletePostUseCaseStub, 'delete')
-      .mockImplementationOnce(async () => {
-        return await Promise.resolve(ResultEnum.forbidden)
-      })
+    const { sut, deletePostByIdUseCaseSpy } = makeSut()
+    deletePostByIdUseCaseSpy.result = ResultEnum.forbidden
     const httpResponse = await sut.handle(request)
     expect(httpResponse).toEqual(forbidden(new UnauthorizedError()))
   })
