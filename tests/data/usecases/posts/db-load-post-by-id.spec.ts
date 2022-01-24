@@ -1,79 +1,54 @@
 import faker from 'faker'
 
-import { PostModel } from '@/data/models/posts'
 import { LoadPostByIdUseCase } from '@/domain/usecases/posts/load-post-by-id-usecase'
-import { LoadPostByIdRepository } from '@/data/protocols/db/posts/load-post-by-id-respository'
 import { DBLoadPostById } from '@/data/usecases/posts/db-load-post-by-id'
+import { LoadPostByIdRepositorySpy } from '../../mocks/mock-posts'
+import { throwError } from '@/tests/domain/mocks'
 
 interface SutTypes {
   sut: LoadPostByIdUseCase
-  loadPostsByIdRepositoryStub: LoadPostByIdRepository
+  loadPostByIdRepositorySpy: LoadPostByIdRepositorySpy
 }
 
-const title = faker.lorem.sentence()
-const content = faker.lorem.paragraphs()
-const id = faker.datatype.uuid()
-const createdBy = faker.name.findName()
-const createdAt = faker.datatype.datetime()
-
-const request: string = id
-
-const post: PostModel = {
-  id,
-  title,
-  content,
-  createdBy,
-  createdAt
-}
-
-const makeLoadPostByIdRepositoryStub = (): LoadPostByIdRepository => {
-  class LoadPostByIdRepositoryStub implements LoadPostByIdRepository {
-    async loadById (id: string): Promise<PostModel> {
-      return await Promise.resolve(post)
-    }
-  }
-  return new LoadPostByIdRepositoryStub()
-}
+const request: string = faker.datatype.uuid()
 
 const makeSut = (): SutTypes => {
-  const loadPostsByIdRepositoryStub = makeLoadPostByIdRepositoryStub()
-  const sut = new DBLoadPostById(loadPostsByIdRepositoryStub)
+  const loadPostByIdRepositorySpy = new LoadPostByIdRepositorySpy()
+  const sut = new DBLoadPostById(loadPostByIdRepositorySpy)
   return {
     sut,
-    loadPostsByIdRepositoryStub
+    loadPostByIdRepositorySpy
   }
 }
 
 describe('DBLoadPostById', () => {
   describe('LoadPostByIdRepository', () => {
     test('Should call LoadPostByIdRepository with corret value', async () => {
-      const { sut, loadPostsByIdRepositoryStub } = makeSut()
-      const loadByUidSpy = jest.spyOn(loadPostsByIdRepositoryStub, 'loadById')
+      const { sut, loadPostByIdRepositorySpy } = makeSut()
+      const loadByUidSpy = jest.spyOn(loadPostByIdRepositorySpy, 'loadById')
       await sut.loadById(request)
-      expect(loadByUidSpy).toHaveBeenCalledWith(id)
+      expect(loadByUidSpy).toHaveBeenCalledWith(request)
     })
 
     test('Should throw if LoadPostByIdRepository throws', async () => {
-      const { sut, loadPostsByIdRepositoryStub } = makeSut()
+      const { sut, loadPostByIdRepositorySpy } = makeSut()
       jest
-        .spyOn(loadPostsByIdRepositoryStub, 'loadById')
-        .mockReturnValueOnce(Promise.reject(new Error()))
+        .spyOn(loadPostByIdRepositorySpy, 'loadById')
+        .mockImplementationOnce(throwError)
       const promise = sut.loadById(request)
       await expect(promise).rejects.toThrow()
     })
   })
 
   test('Should return a list a post on success', async () => {
-    const { sut } = makeSut()
+    const { sut, loadPostByIdRepositorySpy } = makeSut()
     const result = await sut.loadById(request)
-    expect(result).toEqual(post)
+    expect(result).toEqual(loadPostByIdRepositorySpy.result)
   })
 
   test('Should return null if there is no post', async () => {
-    const { sut, loadPostsByIdRepositoryStub } = makeSut()
-    jest
-      .spyOn(loadPostsByIdRepositoryStub, 'loadById')
-      .mockReturnValueOnce(Promise.resolve(null))
+    const { sut, loadPostByIdRepositorySpy } = makeSut()
+    loadPostByIdRepositorySpy.result = null
     const result = await sut.loadById(request)
     expect(result).toBeNull()
   })
