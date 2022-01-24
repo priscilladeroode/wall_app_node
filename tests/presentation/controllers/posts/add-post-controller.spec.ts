@@ -1,21 +1,17 @@
-import { Validation } from '@/presentation/protocols/validation'
 import { AddPostController } from '@/presentation/controllers/posts/add-post-controller'
 
 import faker from 'faker'
 import { HttpRequest } from '@/presentation/protocols'
 import { MissingParamError, ServerError } from '@/presentation/errors'
 import { badRequest, created, serverError } from '@/presentation/helpers/http'
-import { AddPostUseCase } from '@/domain/usecases/posts/add-post-usecase'
-import {
-  AddPostRequestEntity,
-  AddPostResponseEntity
-} from '@/domain/entities/posts'
 import { ValidationSpy } from '../../mocks/mock-validation'
+import { AddPostUseCaseSpy } from '../../mocks/mock-post'
+import { throwError } from '@/tests/domain/mocks'
 
 type SutTypes = {
   sut: AddPostController
-  validationSpy: Validation
-  addPostUseCaseStub: AddPostUseCase
+  validationSpy: ValidationSpy
+  addPostUseCaseSpy: AddPostUseCaseSpy
 }
 
 const title = faker.lorem.sentence()
@@ -30,31 +26,14 @@ const request: HttpRequest = {
   }
 }
 
-const id = faker.datatype.uuid()
-
-const addPostRequest: AddPostRequestEntity = { title, content, uid }
-
-const response: AddPostResponseEntity = { id }
-
-const makeAddPostUseCase = (): AddPostUseCase => {
-  class AddPostUseCaseStub implements AddPostUseCase {
-    async add (
-      authRequestEntity: AddPostRequestEntity
-    ): Promise<AddPostResponseEntity> {
-      return await Promise.resolve(response)
-    }
-  }
-  return new AddPostUseCaseStub()
-}
-
 const makeSut = (): SutTypes => {
   const validationSpy = new ValidationSpy()
-  const addPostUseCaseStub = makeAddPostUseCase()
-  const sut = new AddPostController(validationSpy, addPostUseCaseStub)
+  const addPostUseCaseSpy = new AddPostUseCaseSpy()
+  const sut = new AddPostController(validationSpy, addPostUseCaseSpy)
   return {
     sut,
     validationSpy,
-    addPostUseCaseStub
+    addPostUseCaseSpy
   }
 }
 
@@ -69,29 +48,23 @@ describe('AddPostController', () => {
 
     test('Shoud return 400 if Validation returns an error', async () => {
       const { sut, validationSpy } = makeSut()
-      jest
-        .spyOn(validationSpy, 'validate')
-        .mockReturnValueOnce(new MissingParamError('any_field'))
+      validationSpy.error = new MissingParamError('any_field')
       const httpResponse = await sut.handle(request)
-      expect(httpResponse).toEqual(
-        badRequest(new MissingParamError('any_field'))
-      )
+      expect(httpResponse).toEqual(badRequest(validationSpy.error))
     })
   })
 
   describe('AddPostUseCase', () => {
     test('Shoud call AddPostUseCase with correct values', async () => {
-      const { sut, addPostUseCaseStub } = makeSut()
-      const addSpy = jest.spyOn(addPostUseCaseStub, 'add')
+      const { sut, addPostUseCaseSpy } = makeSut()
+      const addSpy = jest.spyOn(addPostUseCaseSpy, 'add')
       await sut.handle(request)
-      expect(addSpy).toHaveBeenCalledWith(addPostRequest)
+      expect(addSpy).toHaveBeenCalledWith(request.body)
     })
 
     test('Shoud return 500 if AddPostUseCase throws', async () => {
-      const { sut, addPostUseCaseStub } = makeSut()
-      jest.spyOn(addPostUseCaseStub, 'add').mockImplementationOnce(async () => {
-        return await Promise.reject(new Error())
-      })
+      const { sut, addPostUseCaseSpy } = makeSut()
+      jest.spyOn(addPostUseCaseSpy, 'add').mockImplementationOnce(throwError)
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
@@ -99,25 +72,23 @@ describe('AddPostController', () => {
 
   describe('AddPostUseCase', () => {
     test('Shoud call AddPostUseCase with correct values', async () => {
-      const { sut, addPostUseCaseStub } = makeSut()
-      const addSpy = jest.spyOn(addPostUseCaseStub, 'add')
+      const { sut, addPostUseCaseSpy } = makeSut()
+      const addSpy = jest.spyOn(addPostUseCaseSpy, 'add')
       await sut.handle(request)
-      expect(addSpy).toHaveBeenCalledWith(addPostRequest)
+      expect(addSpy).toHaveBeenCalledWith(request.body)
     })
 
     test('Shoud return 500 if AddPostUseCase throws', async () => {
-      const { sut, addPostUseCaseStub } = makeSut()
-      jest.spyOn(addPostUseCaseStub, 'add').mockImplementationOnce(async () => {
-        return await Promise.reject(new Error())
-      })
+      const { sut, addPostUseCaseSpy } = makeSut()
+      jest.spyOn(addPostUseCaseSpy, 'add').mockImplementationOnce(throwError)
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
   })
 
   test('Shoud return 201 if valid post is created', async () => {
-    const { sut } = makeSut()
+    const { sut, addPostUseCaseSpy } = makeSut()
     const httpResponse = await sut.handle(request)
-    expect(httpResponse).toEqual(created(response))
+    expect(httpResponse).toEqual(created(addPostUseCaseSpy.result))
   })
 })
