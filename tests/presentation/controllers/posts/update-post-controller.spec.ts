@@ -1,13 +1,6 @@
-import { Validation } from '@/presentation/protocols/validation'
-import { HttpRequest } from '@/presentation/protocols'
-import {
-  UpdatePostRequestEntity,
-  UpdatePostResponseEntity
-} from '@/domain/entities/posts'
-import { UpdatePostController } from '@/presentation/controllers/posts/update-post-controller'
-
 import faker from 'faker'
-import { UpdatePostUseCase } from '@/domain/usecases/posts/update-post-usecase'
+import { HttpRequest } from '@/presentation/protocols'
+import { UpdatePostController } from '@/presentation/controllers/posts/update-post-controller'
 import {
   MissingParamError,
   NotFoundError,
@@ -23,64 +16,34 @@ import {
 } from '@/presentation/helpers/http'
 import { ResultEnum } from '@/domain/enums/result-enums'
 import { ValidationSpy } from '../../mocks/mock-validation'
+import { UpdatePostUseCaseSpy } from '../../mocks/mock-post'
+import { throwError } from '@/tests/domain/mocks'
 
 type SutTypes = {
   sut: UpdatePostController
-  validationSpy: Validation
-  updatePostUseCaseStub: UpdatePostUseCase
+  validationSpy: ValidationSpy
+  updatePostUseCaseSpy: UpdatePostUseCaseSpy
 }
 
-const id = faker.datatype.uuid()
-const title = faker.lorem.sentence()
-const content = faker.lorem.paragraphs()
-const uid = faker.datatype.uuid()
-const createdBy = faker.name.findName()
-const createdAt = faker.datatype.datetime()
 const missingParam = faker.datatype.string()
 
 const request: HttpRequest = {
   body: {
-    id,
-    title,
-    content,
-    uid
+    id: faker.datatype.uuid(),
+    title: faker.lorem.sentence(),
+    content: faker.lorem.paragraphs(),
+    uid: faker.datatype.uuid()
   }
-}
-
-const updatePostRequestEntity: UpdatePostRequestEntity = {
-  id,
-  title,
-  content,
-  uid
-}
-
-const updatePostResponseEntity: UpdatePostResponseEntity = {
-  id,
-  title,
-  content,
-  createdBy,
-  createdAt
-}
-
-const makeUpdatePostUseCase = (): UpdatePostUseCase => {
-  class UpdatePostUseCaseStub implements UpdatePostUseCase {
-    async update (
-      post: UpdatePostRequestEntity
-    ): Promise<UpdatePostResponseEntity> {
-      return await Promise.resolve(updatePostResponseEntity)
-    }
-  }
-  return new UpdatePostUseCaseStub()
 }
 
 const makeSut = (): SutTypes => {
   const validationSpy = new ValidationSpy()
-  const updatePostUseCaseStub = makeUpdatePostUseCase()
-  const sut = new UpdatePostController(validationSpy, updatePostUseCaseStub)
+  const updatePostUseCaseSpy = new UpdatePostUseCaseSpy()
+  const sut = new UpdatePostController(validationSpy, updatePostUseCaseSpy)
   return {
     sut,
     validationSpy,
-    updatePostUseCaseStub
+    updatePostUseCaseSpy
   }
 }
 
@@ -95,45 +58,39 @@ describe('UpdatePostController', () => {
 
     test('Shoud return 400 if Validation returns an error', async () => {
       const { sut, validationSpy } = makeSut()
-      jest
-        .spyOn(validationSpy, 'validate')
-        .mockReturnValueOnce(new MissingParamError(missingParam))
+      validationSpy.error = new MissingParamError(missingParam)
       const httpResponse = await sut.handle(request)
-      expect(httpResponse).toEqual(
-        badRequest(new MissingParamError(missingParam))
-      )
+      expect(httpResponse).toEqual(badRequest(validationSpy.error))
     })
   })
 
   describe('UpdatePostUseCase', () => {
     test('Shoud call UpdatePostUseCase with correct values', async () => {
-      const { sut, updatePostUseCaseStub } = makeSut()
-      const updateSpy = jest.spyOn(updatePostUseCaseStub, 'update')
+      const { sut, updatePostUseCaseSpy } = makeSut()
+      const updateSpy = jest.spyOn(updatePostUseCaseSpy, 'update')
       await sut.handle(request)
-      expect(updateSpy).toHaveBeenCalledWith(updatePostRequestEntity)
+      expect(updateSpy).toHaveBeenCalledWith(request.body)
     })
 
     test('Shoud return 500 if UpdatePostUseCase throws', async () => {
-      const { sut, updatePostUseCaseStub } = makeSut()
+      const { sut, updatePostUseCaseSpy } = makeSut()
       jest
-        .spyOn(updatePostUseCaseStub, 'update')
-        .mockImplementationOnce(async () => {
-          return await Promise.reject(new Error())
-        })
+        .spyOn(updatePostUseCaseSpy, 'update')
+        .mockImplementationOnce(throwError)
       const httpResponse = await sut.handle(request)
       expect(httpResponse).toEqual(serverError(new ServerError(null)))
     })
 
     test('Shoud return 200 if post is update', async () => {
-      const { sut } = makeSut()
+      const { sut, updatePostUseCaseSpy } = makeSut()
       const httpResponse = await sut.handle(request)
-      expect(httpResponse).toEqual(ok(updatePostResponseEntity))
+      expect(httpResponse).toEqual(ok(updatePostUseCaseSpy.result))
     })
 
     test('Shoud return 403 if post owner is not the same', async () => {
-      const { sut, updatePostUseCaseStub } = makeSut()
+      const { sut, updatePostUseCaseSpy } = makeSut()
       jest
-        .spyOn(updatePostUseCaseStub, 'update')
+        .spyOn(updatePostUseCaseSpy, 'update')
         .mockImplementationOnce(async () => {
           return await Promise.resolve(ResultEnum.forbidden)
         })
@@ -142,9 +99,9 @@ describe('UpdatePostController', () => {
     })
 
     test('Shoud return 404 if post owner is not the same', async () => {
-      const { sut, updatePostUseCaseStub } = makeSut()
+      const { sut, updatePostUseCaseSpy } = makeSut()
       jest
-        .spyOn(updatePostUseCaseStub, 'update')
+        .spyOn(updatePostUseCaseSpy, 'update')
         .mockImplementationOnce(async () => {
           return await Promise.resolve(ResultEnum.notFound)
         })
