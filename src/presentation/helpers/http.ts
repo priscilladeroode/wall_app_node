@@ -1,27 +1,43 @@
 import { ServerError, UnauthorizedError } from '../errors'
+import { CustomError } from '../protocols/custom_error'
 import { HttpResponse } from '../protocols/http'
 
-export const badRequest = (error: Error): HttpResponse => ({
+export const badRequest = (error: CustomError): HttpResponse => ({
   statusCode: 400,
-  body: error
+  body: {
+    errorCode: error.errorCode,
+    message: error.message
+  }
 })
 
-export const unauthorized = (): HttpResponse => ({
-  statusCode: 401,
-  body: new UnauthorizedError()
-})
+export const unauthorized = (): HttpResponse => {
+  const unauthorized = new UnauthorizedError()
+  return {
+    statusCode: 401,
+    body: {
+      errorCode: unauthorized.errorCode,
+      message: unauthorized.message
+    }
+  }
+}
 
-export const notFound = (error: Error): HttpResponse => ({
+export const notFound = (error: CustomError): HttpResponse => ({
   statusCode: 404,
-  body: error
+  body: {
+    errorCode: error.errorCode,
+    message: error.message
+  }
 })
 
-export const forbidden = (error: Error): HttpResponse => ({
+export const forbidden = (error: CustomError): HttpResponse => ({
   statusCode: 403,
-  body: error
+  body: {
+    errorCode: error.errorCode,
+    message: error.message
+  }
 })
 
-export const serverError = (error: Error): HttpResponse => ({
+export const serverError = (error: CustomError): HttpResponse => ({
   statusCode: 500,
   body: new ServerError(error.stack)
 })
