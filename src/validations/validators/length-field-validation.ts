@@ -5,26 +5,26 @@ import { Validation } from '@/presentation/protocols/validation'
 export class LengthFieldValidation implements Validation {
   constructor (
     private readonly fieldName: string,
-    private readonly minLenght: number,
-    private readonly maxLenght: number
+    private readonly minLength: number,
+    private readonly maxLength: number
   ) {}
 
   validate (input: any): CustomError {
-    if (this.minLenght) {
-      if (input[this.fieldName].lenght < this.minLenght) {
+    if (this.minLength) {
+      if (input[this.fieldName].length < this.minLength) {
         return new ParamLengthError(
           this.fieldName,
-          this.minLenght,
-          this.maxLenght
+          this.minLength,
+          this.maxLength
         )
       }
     }
-    if (this.maxLenght) {
-      if (input[this.fieldName].lenght > this.maxLenght) {
+    if (this.maxLength) {
+      if (input[this.fieldName].length > this.maxLength) {
         return new ParamLengthError(
           this.fieldName,
-          this.minLenght,
-          this.maxLenght
+          this.minLength,
+          this.maxLength
         )
       }
     }
