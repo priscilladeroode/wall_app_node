@@ -6,7 +6,6 @@ import { PostMongoRepository } from '@/infra/db/mongodb/post-mongo-repository'
 
 const title = faker.lorem.sentence()
 const content = faker.lorem.paragraphs()
-const uid = faker.datatype.uuid()
 
 const title2 = faker.lorem.sentence()
 const content2 = faker.lorem.paragraphs()
@@ -21,7 +20,7 @@ const email2 = faker.internet.email()
 const password2 = faker.internet.password()
 const accessToken2 = faker.datatype.uuid()
 
-const request: AddPostRequestModel = { title, content, uid }
+let request: AddPostRequestModel
 
 const makeSut = (): PostMongoRepository => {
   return new PostMongoRepository()
@@ -47,6 +46,7 @@ describe('User Mongo Repository', () => {
       accessToken: accessToken2
     }
     listUserId = (await usersCollection.insertMany([user1, user2])).insertedIds
+    request = { title, content, uid: listUserId[0].toHexString() }
   })
 
   afterAll(async () => {
@@ -73,12 +73,12 @@ describe('User Mongo Repository', () => {
       const post1 = {
         title,
         content,
-        uid: listUserId[0]
+        uid: new ObjectId(listUserId[0])
       }
       const post2 = {
         title: title2,
         content: content2,
-        uid: listUserId[1]
+        uid: new ObjectId(listUserId[1])
       }
       const listPosts = await postsCollection.insertMany([post1, post2])
 
@@ -111,11 +111,11 @@ describe('User Mongo Repository', () => {
   describe('loadByUid', () => {
     test('Should return a list of posts of the user on descending order on success', async () => {
       const sut = makeSut()
-      const post1 = { title, content, uid: listUserId[0] }
+      const post1 = { title, content, uid: new ObjectId(listUserId[0]) }
       const post2 = {
         title: title2,
         content: content2,
-        uid: listUserId[1]
+        uid: new ObjectId(listUserId[1])
       }
       const listOfPosts = await postsCollection.insertMany([post1, post2])
 
@@ -144,7 +144,7 @@ describe('User Mongo Repository', () => {
   describe('loadById', () => {
     test('Should return a post on success', async () => {
       const sut = makeSut()
-      const post = { title, content, uid: listUserId[0] }
+      const post = { title, content, uid: new ObjectId(listUserId[0]) }
       const inserted = await postsCollection.insertOne(post)
       const result = await sut.loadById(inserted.insertedId.toHexString())
       expect(result).toBeTruthy()
@@ -167,7 +167,7 @@ describe('User Mongo Repository', () => {
     let postId: ObjectId
     let post: any
     beforeEach(async () => {
-      post = { title, content, uid: listUserId[0] }
+      post = { title, content, uid: new ObjectId(listUserId[0]) }
       postId = (await postsCollection.insertOne(post)).insertedId
     })
 
@@ -195,7 +195,7 @@ describe('User Mongo Repository', () => {
   describe('update', () => {
     test('Should update a post on success', async () => {
       const sut = makeSut()
-      const post = { title, content, uid: listUserId[0] }
+      const post = { title, content, uid: new ObjectId(listUserId[0]) }
       const inserted = (await postsCollection.insertOne(post)).insertedId
       const postUpdate = {
         id: inserted.toHexString(),
@@ -216,7 +216,7 @@ describe('User Mongo Repository', () => {
   describe('update', () => {
     test('Should update a post on success', async () => {
       const sut = makeSut()
-      const post = { title, content, uid: listUserId[0] }
+      const post = { title, content, uid: new ObjectId(listUserId[0]) }
       const inserted = (await postsCollection.insertOne(post)).insertedId
       await sut.deleteById(inserted.toHexString())
       const result = await postsCollection.findOne({ _id: inserted })

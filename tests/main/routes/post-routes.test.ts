@@ -72,7 +72,11 @@ describe('Posts Routes', () => {
 
   describe('/GET posts', () => {
     test('Should return a 200 on load all post', async () => {
-      await postsCollection.insertOne({ title, content, uid })
+      await postsCollection.insertOne({
+        title,
+        content,
+        uid: new ObjectId(uid)
+      })
       await request(app).get('/api/posts').expect(200)
     })
   })
@@ -80,7 +84,11 @@ describe('Posts Routes', () => {
   describe('/GET postsByUser', () => {
     test('Should return a 200 on load user post', async () => {
       const id = (
-        await postsCollection.insertOne({ title, content, uid })
+        await postsCollection.insertOne({
+          title,
+          content,
+          uid: new ObjectId(uid)
+        })
       ).insertedId.toHexString()
       await request(app).get(`/api/postsByUser/${id}`).expect(200)
     })
@@ -89,7 +97,11 @@ describe('Posts Routes', () => {
   describe('/GET posts by id', () => {
     test('Should return a 200 on load a post by id', async () => {
       const id = (
-        await postsCollection.insertOne({ title, content, uid })
+        await postsCollection.insertOne({
+          title,
+          content,
+          uid: new ObjectId(uid)
+        })
       ).insertedId.toHexString()
       await request(app).get(`/api/posts/${id}`).expect(200)
     })
@@ -98,7 +110,11 @@ describe('Posts Routes', () => {
   describe('/PUT post', () => {
     test('Should return a 200 on update', async () => {
       const postId = (
-        await postsCollection.insertOne({ title, content, uid })
+        await postsCollection.insertOne({
+          title,
+          content,
+          uid: new ObjectId(uid)
+        })
       ).insertedId.toHexString()
       await request(app)
         .put(`/api/posts/${postId}`)
@@ -114,7 +130,11 @@ describe('Posts Routes', () => {
   describe('/DELETE deleteById', () => {
     test('Should return a 200 on delete', async () => {
       const id = (
-        await postsCollection.insertOne({ title, content, uid })
+        await postsCollection.insertOne({
+          title,
+          content,
+          uid: new ObjectId(uid)
+        })
       ).insertedId.toHexString()
       await request(app)
         .delete(`/api/deleteById/${id}`)
