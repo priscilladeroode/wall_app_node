@@ -29,7 +29,11 @@ implements
     DeletePostByIdRepository {
   async add (post: AddPostRequestModel): Promise<AddPostResponseModel> {
     const collection = MongoHelper.getCollection('posts')
-    const inserted = await collection.insertOne(post)
+    const { uid, ...rest } = post
+    const inserted = await collection.insertOne({
+      ...rest,
+      uid: new ObjectId(uid)
+    })
     const result: AddPostResponseModel = {
       id: inserted.insertedId.toHexString()
     }
@@ -128,7 +132,12 @@ implements
   async checkById (id: string): Promise<CheckPostExistsResponseModel> {
     const collection = MongoHelper.getCollection('posts')
     const result = await collection.findOne({ _id: new ObjectId(id) })
-    return result && MongoHelper.map(result)
+    if (result) {
+      const { uid, ...rest } = result
+      const post = { uid: uid.toHexString(), ...rest }
+      return result && MongoHelper.map(post)
+    }
+    return null
   }
 
   async update (post: UpdatePostRequestModel): Promise<void> {
@@ -139,7 +148,7 @@ implements
         $set: {
           title: post.title,
           content: post.content,
-          uid: post.uid
+          uid: new ObjectId(post.uid)
         }
       }
     )
