@@ -1,4 +1,5 @@
 import { ParamLengthError } from '@/presentation/errors/param-length-error'
+import { CustomError } from '@/presentation/protocols/custom_error'
 import { Validation } from '@/presentation/protocols/validation'
 
 export class LengthFieldValidation implements Validation {
@@ -8,7 +9,7 @@ export class LengthFieldValidation implements Validation {
     private readonly maxLenght: number
   ) {}
 
-  validate (input: any): Error {
+  validate (input: any): CustomError {
     if (this.minLenght) {
       if (input[this.fieldName].lenght < this.minLenght) {
         return new ParamLengthError(
