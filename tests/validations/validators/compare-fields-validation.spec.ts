@@ -1,6 +1,6 @@
 import faker from 'faker'
-import { InvalidParamError } from '@/presentation/errors'
 import { CompareFieldsValidation } from '@/validations/validators/compare-fields-validation'
+import { FieldNotMatchError } from '@/presentation/errors/fields-not-match-error'
 
 const field = faker.random.word()
 const fieldToCompare = faker.random.word()
@@ -16,7 +16,7 @@ describe('CompareFieldsValidation', () => {
       [field]: 'any_field',
       [fieldToCompare]: 'other_field'
     })
-    expect(error).toEqual(new InvalidParamError(fieldToCompare))
+    expect(error).toEqual(new FieldNotMatchError(field, fieldToCompare))
   })
 
   test('Should not return if validation succeeds', () => {
