@@ -35,7 +35,7 @@ describe('SignUp Routes', () => {
       .post('/api/signup')
       .send({
         name: faker.name.findName(),
-        email: faker.internet.email(),
+        email: 'any_email@gmail.com',
         password: password,
         passwordConfirmation: password
       })
@@ -46,13 +46,13 @@ describe('SignUp Routes', () => {
     const hashedPassword = await hash(password, 12)
     await collection.insertOne({
       name: faker.name.findName(),
-      email: 'priscilla@gmail.com',
+      email: 'any_email@gmail.com',
       password: hashedPassword
     })
     await request(app)
       .post('/api/signin')
       .send({
-        email: 'priscilla@gmail.com',
+        email: 'any_email@gmail.com',
         password: password
       })
       .expect(200)
@@ -62,7 +62,7 @@ describe('SignUp Routes', () => {
     await request(app)
       .post('/api/signin')
       .send({
-        email: 'priscilla@gmail.com',
+        email: 'any_email@gmail.com',
         password: password
       })
       .expect(401)

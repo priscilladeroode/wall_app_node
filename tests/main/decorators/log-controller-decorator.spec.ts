@@ -4,6 +4,7 @@ import { LogControllerDecorator } from '@/main/decorators/log-controller-decorat
 import { Controller, HttpRequest, HttpResponse } from '@/presentation/protocols'
 import { serverError } from '@/presentation/helpers/http'
 import { LogErrorRepository } from '@/data/protocols/db/log/log-error-repository'
+import { ServerError } from '@/presentation/errors'
 
 type SutTypes = {
   sut: LogControllerDecorator
@@ -25,7 +26,7 @@ const fakeHttpRequest = {
 }
 
 const makeFakeServerError = (): HttpResponse => {
-  const fakeError = new Error()
+  const fakeError = new ServerError('')
   fakeError.stack = 'any_stack'
   return serverError(fakeError)
 }

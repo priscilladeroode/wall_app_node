@@ -1,6 +1,6 @@
 import faker from 'faker'
 
-import { MissingParamError } from '@/presentation/errors'
+import { InvalidParamError, MissingParamError } from '@/presentation/errors'
 import { Validation } from '@/presentation/protocols/validation'
 import { ValidationComposite } from '@/validations/validators/'
 import { ValidationSpy } from '@/tests/presentation/mocks/mock-validation'
@@ -35,12 +35,12 @@ describe('Validation Composite', () => {
     const { sut, validationSpies } = makeSut()
     jest
       .spyOn(validationSpies[0], 'validate')
-      .mockReturnValueOnce(new Error(''))
+      .mockReturnValueOnce(new InvalidParamError('field'))
     jest
       .spyOn(validationSpies[1], 'validate')
       .mockReturnValueOnce(new MissingParamError('field'))
     const error = sut.validate({ [field]: faker.random.word() })
-    expect(error).toEqual(new Error(''))
+    expect(error).toEqual(new InvalidParamError('field'))
   })
 
   test('Should not return if validations succeeds', () => {

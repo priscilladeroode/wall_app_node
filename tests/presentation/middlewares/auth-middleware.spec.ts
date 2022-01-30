@@ -5,7 +5,7 @@ import {
   LoadAccountByTokenResponseEntity
 } from '@/domain/entities/users'
 import { LoadAccountByTokenUseCase } from '@/domain/usecases/users/load-account-by-token-usecase'
-import { AccessDeniedError } from '@/presentation/errors'
+import { AccessDeniedError, ServerError } from '@/presentation/errors'
 import { forbidden, ok, serverError } from '@/presentation/helpers/http'
 import { AuthMiddleware } from '@/presentation/middlewares/auth-middleware'
 import { HttpRequest } from '@/presentation/protocols'
@@ -80,6 +80,6 @@ describe('AuthMiddleware', () => {
       .spyOn(loadAccountByTokenStub, 'loadByToken')
       .mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(request)
-    expect(httpResponse).toEqual(serverError(new Error()))
+    expect(httpResponse).toEqual(serverError(new ServerError('')))
   })
 })
