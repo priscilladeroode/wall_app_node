@@ -3,6 +3,7 @@
     "outDir": "./dist",
     "module":"CommonJS",
     "target": "ES2019",
+    "sourceMap": true,
     "rootDirs": [
       "src",
       "tests"
