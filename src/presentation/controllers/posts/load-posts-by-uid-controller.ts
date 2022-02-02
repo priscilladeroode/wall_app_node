@@ -15,8 +15,8 @@ export class LoadPostsByUidController implements Controller {
       if (error) {
         return badRequest(error)
       }
-      const { userId } = httpRequest.body
-      const posts = await this.loadPostsByUidUseCase.loadByUid({ uid: userId })
+      const { uid } = httpRequest.body
+      const posts = await this.loadPostsByUidUseCase.loadByUid({ uid })
       return ok(posts)
     } catch (error) {
       return serverError(error)

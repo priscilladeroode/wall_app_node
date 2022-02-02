@@ -12,9 +12,9 @@ type SutTypes = {
   validationSpy: ValidationSpy
   loadPostsByUidUseCaseSpy: LoadPostsByUidUseCaseSpy
 }
-const userId = faker.datatype.uuid()
+const uid = faker.datatype.uuid()
 
-const request = { body: { userId } }
+const request = { body: { uid } }
 
 const makeSut = (): SutTypes => {
   const validationSpy = new ValidationSpy()
@@ -51,7 +51,7 @@ describe('LoadPostsByUidController', () => {
       const { sut, loadPostsByUidUseCaseSpy } = makeSut()
       const loadByUidSpy = jest.spyOn(loadPostsByUidUseCaseSpy, 'loadByUid')
       await sut.handle(request)
-      expect(loadByUidSpy).toHaveBeenCalledWith({ uid: userId })
+      expect(loadByUidSpy).toHaveBeenCalledWith({ uid })
     })
   })
 
