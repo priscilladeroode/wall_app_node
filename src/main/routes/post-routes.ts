@@ -12,14 +12,18 @@ import { makeAuth } from '../factories/middlewares/auth-middleware'
 export default (router: Router): void => {
   router.get('/posts', adaptRoute(makeLoadAllPostsController()))
   router.get('/posts/:id', adaptRoute(makeLoadPostByIdController()))
-  router.get('/postsByUser/:userId', adaptRoute(makeLoadPostsByUidController()))
+  router.get(
+    '/postsByUser',
+    adaptMiddleware(makeAuth()),
+    adaptRoute(makeLoadPostsByUidController())
+  )
   router.post(
     '/posts',
     adaptMiddleware(makeAuth()),
     adaptRoute(makeAddPostController())
   )
   router.put(
-    '/posts/:id',
+    '/posts',
     adaptMiddleware(makeAuth()),
     adaptRoute(makeUpdatePostController())
   )

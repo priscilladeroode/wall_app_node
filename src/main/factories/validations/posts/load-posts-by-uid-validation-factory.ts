@@ -7,7 +7,7 @@ import {
 
 export const makeLoadPostsByUidValidation = (): ValidationComposite => {
   const validations: Validation[] = []
-  for (const field of ['userId']) {
+  for (const field of ['uid']) {
     validations.push(new RequiredFieldValidation(field))
     validations.push(new TypeFieldValidation(field, 'string'))
   }
