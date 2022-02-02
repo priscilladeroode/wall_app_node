@@ -35,9 +35,9 @@ describe('SignUp Routes', () => {
       .post('/api/signup')
       .send({
         name: faker.name.findName(),
-        email: 'any_email@gmail.com',
-        password: password,
-        passwordConfirmation: password
+        email: 'some_email@gmail.com',
+        password: '123456',
+        passwordConfirmation: '123456'
       })
       .expect(200)
   })

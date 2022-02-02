@@ -18,8 +18,8 @@ describe('AddPostValidation Factory', () => {
       validations.push(new RequiredFieldValidation(field))
       validations.push(new TypeFieldValidation(field, 'string'))
     }
-    validations.push(new LengthFieldValidation('title', 10, 150))
-    validations.push(new LengthFieldValidation('content', 200, 3000))
+    validations.push(new LengthFieldValidation('title', 3, 150))
+    validations.push(new LengthFieldValidation('content', 10, 3000))
     expect(ValidationComposite).toHaveBeenCalledWith(validations)
   })
 })

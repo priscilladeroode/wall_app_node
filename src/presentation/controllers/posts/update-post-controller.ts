@@ -25,7 +25,6 @@ export class UpdatePostController implements Controller {
       }
 
       const post = await this.updatePostUseCase.update(httpRequest.body)
-      console.log(post)
       switch (post) {
         case ResultEnum.forbidden: {
           return forbidden(new UnauthorizedError())
