@@ -46,12 +46,13 @@
     "@sendgrid/mail": "^7.6.0",
     "axios": "^0.25.0",
     "bcrypt": "^5.0.1",
+    "dotenv": "^15.0.1",
     "express": "^4.17.2",
     "jsonwebtoken": "^8.5.1",
     "module-alias": "^2.2.2",
     "mongodb": "^4.3.1",
-    "validator": "^13.7.0",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "validator": "^13.7.0"
   },
   "_moduleAliases": {
     "@": "dist"
