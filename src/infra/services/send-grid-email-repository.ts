@@ -28,7 +28,7 @@ export class SendGridEmailRepository implements SendWelcomeEmailRepository {
             }
           }
         ],
-        template_id: 'd-f2d6cc4a265e41e6a086145f982b4c40'
+        template_id: 'd-e468a1f217d542c1adac3156092e3b16'
       },
       {
         headers: headers
